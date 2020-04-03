@@ -52,6 +52,7 @@ import com.arcsoft.arcfacedemo.util.face.FaceHelper;
 import com.arcsoft.arcfacedemo.util.face.FaceListener;
 import com.arcsoft.arcfacedemo.util.face.RequestFeatureStatus;
 import com.arcsoft.arcfacedemo.util.utils.ConfigUtil;
+import com.arcsoft.arcfacedemo.util.utils.DeviceUtils;
 import com.arcsoft.arcfacedemo.util.utils.DrawHelper;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
 import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
@@ -186,6 +187,7 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
         setContentView(R.layout.activity_face_recognition);
         ButterKnife.bind(this);
         initView();
+        LogUtils.a("设备串口号："+ DeviceUtils.getAndroidID());
         //本地人脸库初始化
         FaceServer.getInstance().init(this);
         SerialPortUtils.gethelp().openSerialPort();

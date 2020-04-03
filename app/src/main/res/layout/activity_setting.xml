@@ -4,62 +4,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@drawable/bg_screen_default"
+    android:orientation="vertical"
     tools:context=".activity.setting.SettingActivity">
-    <RelativeLayout
+
+    <TextView
+        android:onClick="jumpToterminalinform"
         android:layout_width="match_parent"
         android:layout_height="@dimen/setting_entry_height"
-        android:gravity="clip_vertical">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="10dp"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="设备信息"
-                android:textColor="@color/setting_entry_text_color"
-                android:textSize="@dimen/setting_entry_text_size"/>
-        </LinearLayout>
-
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="10dp"
-            android:src="@mipmap/right_icon"/>
-    </RelativeLayout>
+        android:gravity="center_vertical"
+        android:text="设备信息"
+        android:textColor="@color/setting_entry_text_color"
+        android:textSize="@dimen/setting_entry_text_size" />
     <View
-        android:background="@color/setting_entry_view_color"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
-    <RelativeLayout
+        android:layout_height="1dp"
+        android:background="@color/setting_entry_view_color" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_entry_height"
+        android:gravity="center_vertical"
         android:onClick="jumpToGetPoliceFace"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/setting_entry_height"
-        android:gravity="clip_vertical">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="10dp"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="获取所有干警数据"
-                android:textColor="@color/setting_entry_text_color"
-                android:textSize="@dimen/setting_entry_text_size"/>
-        </LinearLayout>
-    </RelativeLayout>
+        android:text="获取所有干警数据"
+        android:textColor="@color/setting_entry_text_color"
+        android:textSize="@dimen/setting_entry_text_size" />
     <View
-        android:background="@color/setting_entry_view_color"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp"
+        android:background="@color/setting_entry_view_color" />
 </LinearLayout>

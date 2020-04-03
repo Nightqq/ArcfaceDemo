@@ -16,6 +16,7 @@ import com.arcsoft.arcfacedemo.activity.TestActivity;
 import com.arcsoft.arcfacedemo.common.Constants;
 import com.arcsoft.arcfacedemo.net.RequestHelper;
 import com.arcsoft.arcfacedemo.util.utils.ConfigUtil;
+import com.arcsoft.arcfacedemo.util.utils.DeviceUtils;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
 import com.arcsoft.arcfacedemo.util.utils.PermissionsUtils;
 import com.arcsoft.face.ActiveFileInfo;
@@ -42,6 +43,7 @@ public class LogoActivity extends BaseActivity {
             return;
         }
         getpermiss();
+
     }
 
     //动态获取权限

@@ -220,8 +220,18 @@ public class SwitchUtils {
     }
 
 
-    public static byte[] base64tobyte(String string){
+    public static byte[] base64tobyte(String string){//base64加密的String转换成byte数值
         byte[] decode = Base64.decode(string, 0);
         return decode;
+    }
+
+
+    public static boolean isNumeric(String str) { //判断string是否全是数字
+        for (int i = str.length(); --i >= 0; ) {
+            int chr = str.charAt(i);
+            if (chr < 48 || chr > 57)
+                return false;
+        }
+        return true;
     }
 }
