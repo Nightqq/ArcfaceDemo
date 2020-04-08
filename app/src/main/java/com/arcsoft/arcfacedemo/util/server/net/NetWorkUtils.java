@@ -42,7 +42,7 @@ public class NetWorkUtils {
     }
 
 
-    public static String getIP(Context context) {
+    public static String getIP() {
         try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
                 NetworkInterface intf = en.nextElement();

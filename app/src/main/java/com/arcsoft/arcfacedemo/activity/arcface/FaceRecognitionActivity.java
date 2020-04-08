@@ -144,7 +144,7 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
 
 
     private Switch switchLivenessDetect;
-    private static final float SIMILAR_THRESHOLD = 0.7F;
+    private static final float SIMILAR_THRESHOLD = 0.8F;
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
     /**
      * 所需的所有权限信息
@@ -187,7 +187,6 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
         setContentView(R.layout.activity_face_recognition);
         ButterKnife.bind(this);
         initView();
-        LogUtils.a("设备串口号："+ DeviceUtils.getAndroidID());
         //本地人脸库初始化
         FaceServer.getInstance().init(this);
         SerialPortUtils.gethelp().openSerialPort();
@@ -598,7 +597,7 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
                             faceHelper.addName(requestId, compareResult.getUserName());
                             textToSpeechUtils.notifyNewMessage(compareResult.getUserName() + "识别成功");
                             //上传照片
-                            cameraHelper.takePictures(App.police_name,policeNum);
+                            cameraHelper.takePictures(policeNum);
                             //发送卡号、成功、开门
                             SerialPortUtils.gethelp().successOpenDoor(policeNum);
                             exit();

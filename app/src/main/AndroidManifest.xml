@@ -74,11 +74,7 @@
         <activity
             android:name=".activity.arcface.FaceRecognitionActivity"
             android:launchMode="singleTask">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <service
@@ -95,7 +91,14 @@
             </intent-filter>
         </receiver>
         <activity android:name=".activity.setting.SettingActivity" />
-        <activity android:name=".activity.arcface.LogoActivity"></activity>
+        <activity android:name=".activity.arcface.LogoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
     </application>
 
 </manifest>

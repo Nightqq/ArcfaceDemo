@@ -43,10 +43,7 @@ public class SettingActivity extends BaseActivity {
         AlertDialog dialog = builder.create();
         View view = View.inflate(this, R.layout.dialog_terminal_inform, null);
         dialog.setView(view, 0, 0, 0, 0);
-        Button button = (Button) view.findViewById(R.id.dialog_download_confirm);
-        Button button_cancel = (Button) view.findViewById(R.id.dialog_download_cancel);
-        TextView textView = (TextView) view.findViewById(R.id.dialog_download_text);
-        ProgressBar  progressBar = (ProgressBar) view.findViewById(R.id.dialog_download_progressbar);
+
         dialog.setCanceledOnTouchOutside(true);
         dialog.show();
     }

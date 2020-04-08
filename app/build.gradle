@@ -42,7 +42,7 @@ android {
 }
 
 greendao {
-    schemaVersion 3
+    schemaVersion 4
     daoPackage 'com.arcsoft.arcfacedemo.dao'
     targetGenDir 'src/main/java'
 }

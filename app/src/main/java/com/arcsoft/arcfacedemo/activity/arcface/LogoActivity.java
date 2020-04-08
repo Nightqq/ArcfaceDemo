@@ -6,6 +6,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,14 +15,20 @@ import com.arcsoft.arcfacedemo.R;
 import com.arcsoft.arcfacedemo.activity.BaseActivity;
 import com.arcsoft.arcfacedemo.activity.TestActivity;
 import com.arcsoft.arcfacedemo.common.Constants;
+import com.arcsoft.arcfacedemo.dao.bean.TerminalInformation;
+import com.arcsoft.arcfacedemo.dao.helper.TerminalInformationHelp;
 import com.arcsoft.arcfacedemo.net.RequestHelper;
 import com.arcsoft.arcfacedemo.util.utils.ConfigUtil;
 import com.arcsoft.arcfacedemo.util.utils.DeviceUtils;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
 import com.arcsoft.arcfacedemo.util.utils.PermissionsUtils;
+import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
 import com.arcsoft.face.ActiveFileInfo;
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -204,5 +211,104 @@ public class LogoActivity extends BaseActivity {
         } else if (model == 2) {
             startActivity(TestActivity.class);
         }
+    }
+
+    public void jumptoRegistdevice(View view) {
+        TerminalInformation terminalInformation = TerminalInformationHelp.getTerminalInformation();
+        if (terminalInformation.getIsregister()){
+            Toast.makeText(this, "改设备已经注册过", Toast.LENGTH_SHORT).show();
+        }else {
+            showRegistdevicedialog();
+        }
+
+    }
+
+    private void showRegistdevicedialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog dialog = builder.create();
+        View view = View.inflate(this, R.layout.dialog_regist_device, null);
+        dialog.setView(view, 0, 0, 0, 0);
+        EditText edtDeviceId = (EditText) view.findViewById(R.id.dialog_device_id);
+        EditText edtDeviceName = (EditText) view.findViewById(R.id.dialog_device_name);
+        EditText edtDeviceIP = (EditText) view.findViewById(R.id.dialog_device_ip);
+        TextView edtDevicePort = (TextView) view.findViewById(R.id.dialog_device_port);
+        TextView edtDeviceSerial = (TextView) view.findViewById(R.id.dialog_device_Serial);
+        Button edtDeviceconfirm = (Button) view.findViewById(R.id.dialog_device_confirm);
+        Button edtDevicecancel = (Button) view.findViewById(R.id.dialog_device_cancel);
+        dialog.setCanceledOnTouchOutside(true);
+        edtDeviceconfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String deviceId = edtDeviceId.getText().toString();
+                String deviceName = edtDeviceName.getText().toString();
+                String deviceIP = edtDeviceIP.getText().toString();
+                if (deviceId == null || deviceId.length() == 0) {
+                    Toast.makeText(LogoActivity.this, "设备编号不能为空", Toast.LENGTH_SHORT).show();
+                } else if (deviceName == null || deviceName.length() == 0) {
+                    Toast.makeText(LogoActivity.this, "设备名称不能为空", Toast.LENGTH_SHORT).show();
+                } else if (deviceIP == null || deviceIP.length() == 0) {
+                    Toast.makeText(LogoActivity.this, "设备IP不能为空", Toast.LENGTH_SHORT).show();
+                } else if (!isIP(deviceIP)) {
+                    Toast.makeText(LogoActivity.this, "设备IP格式不正确", Toast.LENGTH_SHORT).show();
+                } else {
+                    TerminalInformation terminalInformation = TerminalInformationHelp.getTerminalInformation();
+                    terminalInformation.setTerminalNum(deviceId);
+                    terminalInformation.setTerminalName(deviceName);
+                    terminalInformation.setServerIP(deviceIP);
+                    terminalInformation.setServerPost("3639");
+                    terminalInformation.setSerial(DeviceUtils.getAndroidID());
+                    TerminalInformationHelp.savePoliceInfoToDB(terminalInformation);
+                    RequestHelper.getRequestHelper().registdevice(terminalInformation, new RequestHelper.OpenDownloadListener() {
+                        @Override
+                        public void openDownload(String message) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (SwitchUtils.isNumeric(message)){
+                                        if (message.equals("1")){
+                                            Toast.makeText(LogoActivity.this, "注册成功", Toast.LENGTH_SHORT).show();
+                                            dialog.dismiss();
+                                        }else if (message.equals("0")){
+                                            Toast.makeText(LogoActivity.this, "超时", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }else {
+                                        Toast.makeText(LogoActivity.this, message, Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+        edtDevicecancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
+    boolean isIP(String str) {
+        // 1、首先检查字符串的长度 最短应该是0.0.0.0 7位 最长 000.000.000.000 15位
+        if (str.length() < 7 || str.length() > 15) return false;
+        // 2、按.符号进行拆分，拆分结果应该是4段，"."、"|"、"^"等特殊字符必须用 \ 来进行转义
+        // 而在java字符串中，\ 也是个已经被使用的特殊符号，也需要使用 \ 来转义
+        String[] arr = str.split("\\.");
+        if (arr.length != 4) return false;
+        // 3、检查每个字符串是不是都是数字,ip地址每一段都是0-255的范围
+        for (int i = 0; i < 4; i++) {
+            if (!isNUM(arr[i]) || arr[i].length() == 0 || Integer.parseInt(arr[i]) > 255 || Integer.parseInt(arr[i]) < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    boolean isNUM(String str) {
+        Pattern p = Pattern.compile("[0-9]*");
+        Matcher m = p.matcher(str);
+        return m.matches();
     }
 }

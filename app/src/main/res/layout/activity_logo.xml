@@ -26,6 +26,16 @@
         android:text="获取干警人脸数据"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
+    <TextView
+        android:onClick="jumptoRegistdevice"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center"
+        android:textColor="#fff"
+        android:textSize="30sp"
+        android:text="注册设备"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
     <TextView
         android:onClick="jumptonextactivity"
         android:layout_marginTop="20dp"

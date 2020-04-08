@@ -16,6 +16,7 @@ import android.view.View;
 import com.arcsoft.arcfacedemo.net.RequestHelper;
 import com.arcsoft.arcfacedemo.net.bean.JsonPolicePhoto;
 import com.arcsoft.arcfacedemo.util.image.ImageBase64Utils;
+import com.arcsoft.arcfacedemo.util.server.net.NetWorkUtils;
 import com.arcsoft.arcfacedemo.util.utils.RequestUtil;
 import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
 
@@ -187,7 +188,7 @@ public class CameraHelper implements Camera.PreviewCallback {
         }
     }
 
-    public void takePictures(String name, String id) {
+    public void takePictures(String id) {
         mCamera.takePicture(null, null, new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] bytes, Camera camera) {
@@ -196,7 +197,7 @@ public class CameraHelper implements Camera.PreviewCallback {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");// HH:mm:ss
                 Date date = new Date(System.currentTimeMillis());
                 String format = simpleDateFormat.format(date);
-                JsonPolicePhoto jsonPolicePhoto = new JsonPolicePhoto(id, name, format, ImageBase64Utils.getBitmapByte(bitmap));
+                JsonPolicePhoto jsonPolicePhoto = new JsonPolicePhoto(id, NetWorkUtils.getIP(), format, ImageBase64Utils.getBitmapByte(bitmap),"F");
                 RequestHelper.getRequestHelper().uploadPolicephoto(jsonPolicePhoto);
                 mCamera.startPreview();
             }

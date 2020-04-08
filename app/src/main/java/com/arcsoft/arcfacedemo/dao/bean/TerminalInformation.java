@@ -1,6 +1,8 @@
 package com.arcsoft.arcfacedemo.dao.bean;
 
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
@@ -16,10 +18,17 @@ public class TerminalInformation {
     private Long id;
     //本机编号
     private String TerminalNum = "ZX0000";
+    //设备名称
+    private String TerminalName = "前端设备";
+    //设备串口号
+    private String Serial="123456qwert";
     //服务器IP地址
     private String ServerIP = "192.168.0.10";
     //服务器端口
-    private String ServerPost = "";
+    private String ServerPost = "3639";
+    //是否注册标准
+    private boolean isregister=false;
+
     //识别阈值
     private float RecognitionThreshold = (float) 0.8;
     //识别超时时间
@@ -28,14 +37,18 @@ public class TerminalInformation {
     private int RecognitionNum = 5;
     //设置密码
     private String SettingPassword = "123456";
-    @Generated(hash = 1766289712)
-    public TerminalInformation(Long id, String TerminalNum, String ServerIP,
-            String ServerPost, float RecognitionThreshold, long OutTime,
-            int RecognitionNum, String SettingPassword) {
+    @Generated(hash = 2083214673)
+    public TerminalInformation(Long id, String TerminalNum, String TerminalName,
+            String Serial, String ServerIP, String ServerPost, boolean isregister,
+            float RecognitionThreshold, long OutTime, int RecognitionNum,
+            String SettingPassword) {
         this.id = id;
         this.TerminalNum = TerminalNum;
+        this.TerminalName = TerminalName;
+        this.Serial = Serial;
         this.ServerIP = ServerIP;
         this.ServerPost = ServerPost;
+        this.isregister = isregister;
         this.RecognitionThreshold = RecognitionThreshold;
         this.OutTime = OutTime;
         this.RecognitionNum = RecognitionNum;
@@ -91,5 +104,23 @@ public class TerminalInformation {
     }
     public void setSettingPassword(String SettingPassword) {
         this.SettingPassword = SettingPassword;
+    }
+    public String getTerminalName() {
+        return this.TerminalName;
+    }
+    public void setTerminalName(String TerminalName) {
+        this.TerminalName = TerminalName;
+    }
+    public String getSerial() {
+        return this.Serial;
+    }
+    public void setSerial(String Serial) {
+        this.Serial = Serial;
+    }
+    public boolean getIsregister() {
+        return this.isregister;
+    }
+    public void setIsregister(boolean isregister) {
+        this.isregister = isregister;
     }
 }

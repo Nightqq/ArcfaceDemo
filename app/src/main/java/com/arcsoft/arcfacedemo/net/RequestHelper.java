@@ -5,10 +5,16 @@ import android.util.Base64;
 import com.alibaba.fastjson.JSON;
 import com.arcsoft.arcfacedemo.activity.App;
 import com.arcsoft.arcfacedemo.dao.bean.PoliceFace;
+import com.arcsoft.arcfacedemo.dao.bean.TerminalInformation;
 import com.arcsoft.arcfacedemo.dao.helper.PoliceFaceHelp;
+import com.arcsoft.arcfacedemo.dao.helper.TerminalInformationHelp;
+import com.arcsoft.arcfacedemo.net.bean.JsonGetFaceDevice;
 import com.arcsoft.arcfacedemo.net.bean.JsonPoliceFace;
 import com.arcsoft.arcfacedemo.net.bean.JsonPolicePhoto;
+import com.arcsoft.arcfacedemo.net.bean.JsonSuccessReturn;
+import com.arcsoft.arcfacedemo.util.server.net.NetWorkUtils;
 import com.arcsoft.arcfacedemo.util.utils.CallBackUtil;
+import com.arcsoft.arcfacedemo.util.utils.DeviceUtils;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
 import com.arcsoft.arcfacedemo.util.utils.OkhttpUtil;
 import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
@@ -117,9 +123,10 @@ public class RequestHelper {
     public void uploadPolicephoto(JsonPolicePhoto jsonPolicePhoto){
         Map<String, String> params = new HashMap<>();
         params.put("emp_id", jsonPolicePhoto.getEmp_id());
-        params.put("emp_name", jsonPolicePhoto.getEmp_name());
-        params.put("bdsj", jsonPolicePhoto.getBdsj());
-        params.put("bdzp", jsonPolicePhoto.getBdzp());
+        params.put("dev_ip", jsonPolicePhoto.getDev_ip());
+        params.put("compare_time", jsonPolicePhoto.getCompare_time());
+        params.put("emp_photo", jsonPolicePhoto.getEmp_photo());
+        params.put("compare_type", jsonPolicePhoto.getCompare_type());
         OkhttpUtil.okHttpPost(UrlConfig.getinstance().uploauploadPolicephotoUrl(), params, new CallBackUtil() {
             @Override
             public Object onParseResponse(Call call, Response response) {
@@ -143,11 +150,89 @@ public class RequestHelper {
         });
     }
 
+    public void registdevice(TerminalInformation terminalInformation,OpenDownloadListener openDownloadListener){
+        Map<String, String> params = new HashMap<>();
+        params.put("dev_code", terminalInformation.getTerminalNum());
+        params.put("dev_name",terminalInformation.getTerminalName());
+        params.put("dev_ip", terminalInformation.getServerIP());
+        params.put("dev_port", terminalInformation.getServerPost());
+        params.put("dev_serial",terminalInformation.getSerial() );
+        params.put("valid", "2");
+        OkhttpUtil.okHttpPost(UrlConfig.getinstance().addFaceDevice(), params, new CallBackUtil() {
+            @Override
+            public Object onParseResponse(Call call, Response response) {
+                try {
+                    String string = response.body().string();
+                    LogUtils.a("注册设备返回："+string);
+                    JsonSuccessReturn jsonSuccessReturn = JSON.parseObject(string, JsonSuccessReturn.class);
+                    if (jsonSuccessReturn!=null&&jsonSuccessReturn.isSuccess()){
+                        terminalInformation.setIsregister(true);
+                        TerminalInformationHelp.savePoliceInfoToDB(terminalInformation);
+                        openDownloadListener.openDownload("1");
+                    }else if (!jsonSuccessReturn.isSuccess()){
+                        openDownloadListener.openDownload(jsonSuccessReturn.getSource());
+                    }else {
+                        openDownloadListener.openDownload("0");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            public void onFailure(Call call, Exception e) {
+
+            }
+
+            @Override
+            public void onResponse(Object response) {
+
+            }
+        });
+    }
+    public void getdevice(){
+        OkhttpUtil.okHttpPost(UrlConfig.getinstance().getFaceDevice(), new CallBackUtil() {
+            @Override
+            public Object onParseResponse(Call call, Response response) {
+                try {
+                    String  string = response.body().string();
+                    LogUtils.a("注册设备返回："+string);
+                    JsonGetFaceDevice jsonGetFaceDevice = JSON.parseObject(string, JsonGetFaceDevice.class);
+                    if (jsonGetFaceDevice!=null&&jsonGetFaceDevice.isSuccess()){
+                        List<JsonGetFaceDevice.SourceBean> source = jsonGetFaceDevice.getSource();
+                        if (source!=null&&source.size()>0){
+                            for (JsonGetFaceDevice.SourceBean sourceBean : source) {
+                                if (sourceBean.getDev_serial().equals(DeviceUtils.getAndroidID())){
+                                   // TerminalInformationHelp.getTerminalInformation()
+                                }
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            public void onFailure(Call call, Exception e) {
+
+            }
+
+            @Override
+            public void onResponse(Object response) {
+
+            }
+        });
+    }
+
+
+
     //下载监听
     private OpenDownloadListener openDownloadListener;
 
     public interface OpenDownloadListener {
-
         void openDownload(String message);
     }
 
