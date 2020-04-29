@@ -76,7 +76,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
     /**
      * 优先打开的摄像头，本界面主要用于单目RGB摄像头设备，因此默认打开前置
      */
-    private Integer rgbCameraID = Camera.CameraInfo.CAMERA_FACING_FRONT;
+    private Integer rgbCameraID =0;
     private FaceEngine faceEngine;
     private FaceHelper faceHelper;
     private List<CompareResult> compareResultList;
@@ -84,7 +84,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
     /**
      * 活体检测的开关
      */
-    private boolean livenessDetect = true;
+    private boolean livenessDetect = false;
 
     /**
      * 注册人脸状态码，准备注册
@@ -251,7 +251,6 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
             public void onFaceFeatureInfoGet(@Nullable final FaceFeature faceFeature, final Integer requestId) {
                 //FR成功
                 if (faceFeature != null) {
-                    LogUtils.a("onFaceFeatureInfoGet");
                     if (!livenessDetect) {//不做活体检测的情况，直接搜索
                         LogUtils.a("不做活体检测的情况");
                         searchFace(faceFeature, requestId);

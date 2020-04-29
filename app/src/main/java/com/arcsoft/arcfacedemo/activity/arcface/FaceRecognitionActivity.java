@@ -1,9 +1,14 @@
 package com.arcsoft.arcfacedemo.activity.arcface;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.kingsun.KingsunSmartAPI;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -17,7 +22,9 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
+import android.text.method.DigitsKeyListener;
 import android.util.DisplayMetrics;
 import android.view.TextureView;
 import android.view.View;
@@ -40,6 +47,7 @@ import com.arcsoft.arcfacedemo.activity.BaseActivity;
 import com.arcsoft.arcfacedemo.activity.setting.SettingActivity;
 import com.arcsoft.arcfacedemo.dao.bean.PoliceFace;
 import com.arcsoft.arcfacedemo.dao.helper.PoliceFaceHelp;
+import com.arcsoft.arcfacedemo.dao.helper.TerminalInformationHelp;
 import com.arcsoft.arcfacedemo.faceserver.CompareResult;
 import com.arcsoft.arcfacedemo.faceserver.FaceServer;
 import com.arcsoft.arcfacedemo.model.DrawInfo;
@@ -51,13 +59,14 @@ import com.arcsoft.arcfacedemo.util.communi.SerialPortUtils;
 import com.arcsoft.arcfacedemo.util.face.FaceHelper;
 import com.arcsoft.arcfacedemo.util.face.FaceListener;
 import com.arcsoft.arcfacedemo.util.face.RequestFeatureStatus;
+import com.arcsoft.arcfacedemo.util.server.net.NetWorkUtils;
 import com.arcsoft.arcfacedemo.util.utils.ConfigUtil;
-import com.arcsoft.arcfacedemo.util.utils.DeviceUtils;
 import com.arcsoft.arcfacedemo.util.utils.DrawHelper;
+import com.arcsoft.arcfacedemo.util.utils.FileUtils;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
+import com.arcsoft.arcfacedemo.util.utils.SoundPlayer;
 import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
 import com.arcsoft.arcfacedemo.util.utils.TextToSpeechUtils;
-import com.arcsoft.arcfacedemo.util.utils.Utils;
 import com.arcsoft.arcfacedemo.widget.FaceRectView;
 import com.arcsoft.arcfacedemo.widget.ShowFaceInfoAdapter;
 import com.arcsoft.face.AgeInfo;
@@ -68,7 +77,7 @@ import com.arcsoft.face.GenderInfo;
 import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
 
-import java.text.ParseException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -113,6 +122,10 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
     ImageView faceContrastRotate;
     @BindView(R.id.face_recognition_FrameLayout)
     FrameLayout faceRecognitionFrameLayout;
+    @BindView(R.id.face_recognition_subtitles)
+    TextView faceRecognitionSubtitles;
+    @BindView(R.id.activity_face_recognition_networkState)
+    TextView activityFaceRecognitionNetworkState;
     private CameraHelper cameraHelper;
     private DrawHelper drawHelper;
     private Camera.Size previewSize;
@@ -123,28 +136,16 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
     private FaceEngine faceEngine;
     private FaceHelper faceHelper;
     private List<CompareResult> compareResultList;
-    private ShowFaceInfoAdapter adapter;
-    /**
-     * 注册人脸状态码，准备注册
-     */
-    private static final int REGISTER_STATUS_READY = 0;
-    /**
-     * 注册人脸状态码，注册中
-     */
-    private static final int REGISTER_STATUS_PROCESSING = 1;
-    /**
-     * 注册人脸状态码，注册结束（无论成功失败）
-     */
-    private static final int REGISTER_STATUS_DONE = 2;
-    private int registerStatus = REGISTER_STATUS_DONE;
+    // private ShowFaceInfoAdapter adapter;
+
+
     private int afCode = -1;
     private ConcurrentHashMap<Integer, Integer> requestFeatureStatusMap = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, Integer> livenessMap = new ConcurrentHashMap<>();
     private CompositeDisposable getFeatureDelayedDisposables = new CompositeDisposable();
+    private KingsunSmartAPI api;
 
-
-    private Switch switchLivenessDetect;
-    private static final float SIMILAR_THRESHOLD = 0.8F;
+    private static float SIMILAR_THRESHOLD = 0.82F;
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
     /**
      * 所需的所有权限信息
@@ -153,33 +154,102 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
             Manifest.permission.CAMERA,
             Manifest.permission.READ_PHONE_STATE
     };
-    private TextToSpeechUtils textToSpeechUtils;
+
     private Handler handler = new Handler() {
     };
+    private long out_time = 3000;
+    private int fail_num = 3;
     //定时退出
     Runnable runnable_time_out = new Runnable() {
         @Override
         public void run() {
-            textToSpeechUtils.notifyNewMessage("超时，请重新刷卡");
-            isrecognition = false;
-            visibilityLayout();
+            TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("超时，请重新刷卡");
+            displaysubtitles(2);
+        }
+    };
+    //人脸识别识别退出
+    Runnable runnable_recognition_fail = new Runnable() {
+        @Override
+        public void run() {
+            TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("识别失败");
+            displaysubtitles(0);
+        }
+    };
+
+    //定时显示一秒字幕再推出
+    Runnable runnable_time_display = new Runnable() {
+        @Override
+        public void run() {
+            //退出至等待页面
+            recognitionstate = 0;
+            visibilityLayout();//更新进入等待页面
             App.castMemory();//刷卡人脸置空
             compareNum = 0;
             compareSimilar = 0;
         }
     };
-
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            LogUtils.a("更新页面");
+            LogUtils.a("更新页面时间");
+            //TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("更新页面");
             visibilityLayout();
+            activityFaceRecognitionNetworkState.setVisibility(View.GONE);
+            TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage(App.police_name);
             faceRecognitionTectview.setText(App.police_name + "识别中");
         }
     };
-    //等待状态flase识别状态true
-    public boolean isrecognition = false;
 
+    Runnable refresh_network_status = new Runnable() {
+        @Override
+        public void run() {
+            int netWorkState = NetWorkUtils.getNetworkState();
+            String message = "";
+            switch (netWorkState) {
+                case 0:
+                    message = "网络状态：异常";
+                    activityFaceRecognitionNetworkState.setText(message);
+                    activityFaceRecognitionNetworkState.setTextColor(Color.parseColor("#ff0000"));
+                    activityFaceRecognitionNetworkState.setVisibility(View.VISIBLE);
+                    break;
+                case 1:
+                    message = "网络状态：wifi";
+                    // activityFaceRecognitionNetworkState.setText(message);
+                    //activityFaceRecognitionNetworkState.setTextColor(Color.parseColor("#00ff00"));
+                    break;
+                case 2:
+                    message = "手机2.3.4G网络";
+                    break;
+                case 3:
+                    message = "网络状态：正常";
+                    activityFaceRecognitionNetworkState.setVisibility(View.GONE);
+                    // activityFaceRecognitionNetworkState.setText(message);
+                    //activityFaceRecognitionNetworkState.setTextColor(Color.parseColor("#00ff00"));
+                    break;
+            }
+            if (istest) {
+                TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage(message);
+            }
+        }
+    };
+    private FaceRecognitionActivity.networkBroadcast networkBroadcast;
+
+    private class networkBroadcast extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE")) {
+                handler.post(refresh_network_status);
+            }
+        }
+    }
+
+
+    //等待中0（可刷卡）,识别中1（不接受刷卡）,识别结束2（不接受刷卡），
+    public int recognitionstate = 0;
+
+
+    //是否测试模式标志
+    public boolean istest = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,9 +261,11 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
         FaceServer.getInstance().init(this);
         SerialPortUtils.gethelp().openSerialPort();
         //jumpshuaka();
+        //初始化音效
+        SoundPlayer.init(this);
     }
 
-    public void jumpshuaka() {
+    /*public void jumpshuaka() {
         PoliceFace policeFace = PoliceFaceHelp.getPoliceFaceByNum("2859CD");
         if (policeFace != null) {
             if (policeFace.getEMP_FEATURE() != null) {
@@ -208,16 +280,17 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
                 LogUtils.a("特征值大小:" + App.byteface.length);
             }
         }
-    }
-
+    }*/
 
     public void visibilityLayout() {
-        if (isrecognition) {
+        //  TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("状态"+recognitionstate);
+        if (recognitionstate == 1) {//进入识别页面
             faceRecognitionImgview.setVisibility(View.VISIBLE);
             faceRecognitionLinear.setVisibility(View.VISIBLE);
             faceRecognitionFrameLayout.setVisibility(View.GONE);
             faceContrastRotate.setVisibility(View.GONE);
-        } else {
+        } else if (recognitionstate == 0) {//进入等待页面
+            faceRecognitionSubtitles.setVisibility(View.GONE);
             faceRecognitionImgview.setVisibility(View.GONE);
             faceRecognitionLinear.setVisibility(View.GONE);
             faceRecognitionFrameLayout.setVisibility(View.VISIBLE);
@@ -225,8 +298,47 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
         }
     }
 
+    //0失败，1成功，2超时
+    public void displaysubtitles(int i) {
+        recognitionstate = 2;
+        handler.removeCallbacks(runnable_time_out);
+
+        String format = new DecimalFormat("0.000").format(compareSimilar);
+        //TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("相似度：" + format);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日");// HH:mm:ss
+        SimpleDateFormat simpleDateFormattime = new SimpleDateFormat("HH:mm:ss");
+        Date date = new Date(System.currentTimeMillis());
+        String format1 = simpleDateFormat.format(date);
+        String time = simpleDateFormattime.format(date);
+        String content = "日期：" + format1 + "时间：" + time + "卡号：" + policeNum + "相似度：" + format + "结果：" + i + "\n";
+        FileUtils.getFileUtilsHelp().savaSimilarityLog(content);
+
+        handler.postDelayed(runnable_time_display, 500);//延迟一秒执行
+        switch (i) {
+            case 0:
+                faceRecognitionSubtitles.setVisibility(View.VISIBLE);
+                faceRecognitionSubtitles.setText("识别失败");
+                faceRecognitionSubtitles.setTextColor(Color.parseColor("#ff0000"));
+                api.controlLight("01");
+                break;
+            case 1:
+                faceRecognitionSubtitles.setVisibility(View.VISIBLE);
+                faceRecognitionSubtitles.setText("识别成功");
+                faceRecognitionSubtitles.setTextColor(Color.parseColor("#00ff00"));
+                api.controlLight("02");
+                break;
+            case 2:
+                faceRecognitionSubtitles.setVisibility(View.VISIBLE);
+                faceRecognitionSubtitles.setText("识别超时");
+                faceRecognitionSubtitles.setTextColor(Color.parseColor("#ff0000"));
+                api.controlLight("01");
+                break;
+        }
+    }
+
     private String policeNum;
 
+    @SuppressLint("WrongConstant")
     @Override
     protected void onStart() {
         super.onStart();
@@ -235,54 +347,132 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
         LinearInterpolator lin = new LinearInterpolator();//设置动画匀速运动
         animation.setInterpolator(lin);
         faceContrastRotate.startAnimation(animation);
+        if (api == null) {
+            api = (KingsunSmartAPI) getSystemService("kingsunsmartapi");
+            api.setDaemonProcess("com.arcsoft.arcfacedemo", true);//设置为守护app
+        }
+        SIMILAR_THRESHOLD = TerminalInformationHelp.getTerminalInformation().getRecognitionThreshold();
+        out_time = TerminalInformationHelp.getTerminalInformation().getOutTime();
+        fail_num = TerminalInformationHelp.getTerminalInformation().getRecognitionNum();
+        //api.setStatusBar(false);
         SerialPortUtils.gethelp().setOnDataReceiveListener(new SerialPortUtils.OnDataReceiveListener() {
             @Override
             public void onDataReceive(byte[] buffer) {
-                policeNum = SwitchUtils.byte2HexStr(buffer).replaceAll(" ", "");
-                LogUtils.a("收到卡号：" + policeNum);
-                PoliceFace policeFace = PoliceFaceHelp.getPoliceFaceByNum(policeNum);
-                if (policeFace != null) {
-                    if (policeFace.getEMP_FEATURE() != null) {
-                        requestFeatureStatusMap.clear();//清除预览人脸
-                        livenessMap.clear();
-                        compareResultList.clear();
-                        isrecognition = true;
-                        handler.post(runnable);//刷卡进入识别页面
-                        handler.postDelayed(runnable_time_out, 5000);
-                        App.byteface = SwitchUtils.base64tobyte(policeFace.getEMP_FEATURE());
-                        App.police_name = policeFace.getEMP_NAME();
-                        LogUtils.a("特征值大小:" + App.byteface.length);
-                    } else {
-                        textToSpeechUtils.notifyNewMessage("有卡号无人脸数据");
-                    }
-                } else {
-                    textToSpeechUtils.notifyNewMessage("本地无此考号联网获取中");
-                    RequestHelper.getRequestHelper().getPoliceFace(policeNum, new RequestHelper.OpenDownloadListener() {
+                if (recognitionstate == 0 && isswipingcardClick()) {
+                    //播放声音
+                    SoundPlayer.play(1);
+                    policeNum = SwitchUtils.byte2HexStr(buffer).replaceAll(" ", "");
+                    LogUtils.a("收到卡号时间：" + policeNum);
+                    //TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage(policeNum);
+                    RequestHelper.getRequestHelper().getPoliceFace(handler, policeNum, new RequestHelper.OpenDownloadListener() {
                         @Override
                         public void openDownload(String message) {
-                            textToSpeechUtils.notifyNewMessage(message);
+                            if (message.equals("下载成功")) {
+                                startFacerecognition();
+                            } else {//识别使用本地数据
+                                if (message.equals("服务器连接超时")) {
+                                    activityFaceRecognitionNetworkState.setVisibility(View.VISIBLE);
+                                    activityFaceRecognitionNetworkState.setText("服务器连接超时");
+                                    activityFaceRecognitionNetworkState.setTextColor(Color.parseColor("#ff0000"));
+                                }
+                                PoliceFace policeFace = PoliceFaceHelp.getPoliceFaceByNum(policeNum);
+                                if (policeFace != null) {
+                                    if (policeFace.getEMP_FEATURE() != null) {
+                                        App.byteface = SwitchUtils.base64tobyte(policeFace.getEMP_FEATURE());
+                                        App.police_name = policeFace.getEMP_NAME();
+                                        startFacerecognition();
+                                    } else {
+                                        TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("此卡无人脸数据");
+                                    }
+                                } else {
+                                        TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage(message);
+                                }
+                            }
                         }
                     });
-                }
 
+/*
+                    PoliceFace policeFace = PoliceFaceHelp.getPoliceFaceByNum(policeNum);
+                    if (policeFace != null) {
+                        if (policeFace.getEMP_FEATURE() != null) {
+                            App.byteface = SwitchUtils.base64tobyte(policeFace.getEMP_FEATURE());
+                            App.police_name = policeFace.getEMP_NAME();
+                            if (policeFace.getEMP_TYPE() == 1 || policeFace.getEMP_TYPE() == 2 || policeFace.getEMP_TYPE() == 5 || policeFace.getEMP_TYPE() == 6) {
+                                if (App.byteface.length != 1032) {
+                                    textToSpeechUtils.notifyNewMessage("人脸数据异常");
+                                }
+                                startFacerecognition();
+                            } else {//外来人员
+                                RequestHelper.getRequestHelper().getPoliceFace(policeNum, new RequestHelper.OpenDownloadListener() {
+                                    @Override
+                                    public void openDownload(String message) {
+                                        if (message.equals("下载成功")) {
+                                            startFacerecognition();
+                                        } else {
+                                            textToSpeechUtils.notifyNewMessage(message);
+                                            if (App.byteface != null) {
+                                                startFacerecognition();
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        } else {
+                            textToSpeechUtils.notifyNewMessage("此卡无人脸数据");
+                        }
+                    } else {
+                        textToSpeechUtils.notifyNewMessage("数据同步中");
+                        LogUtils.a("联网获取卡号时间");
+                        RequestHelper.getRequestHelper().getPoliceFace(policeNum, new RequestHelper.OpenDownloadListener() {
+                            @Override
+                            public void openDownload(String message) {
+                                if (message.equals("下载成功")) {
+                                    startFacerecognition();
+                                } else {
+                                    textToSpeechUtils.notifyNewMessage(message);
+                                }
+                            }
+                        });
+                    }*/
+                }
             }
         });
     }
 
 
+    public void startFacerecognition() {
+        requestFeatureStatusMap.clear();//清除预览人脸
+        livenessMap.clear();
+        compareResultList.clear();
+        recognitionstate = 1;
+        handler.post(runnable);//刷卡进入识别页面
+        handler.postDelayed(runnable_time_out, out_time);
+    }
 
     private void initView() {
+        recognitionstate = 0;
         visibilityLayout();
         previewView.getViewTreeObserver().addOnGlobalLayoutListener(this);
-        RecyclerView recyclerShowFaceInfo = findViewById(R.id.recycler_view_person);
+        //RecyclerView recyclerShowFaceInfo = findViewById(R.id.recycler_view_person);
         compareResultList = new ArrayList<>();
-        adapter = new ShowFaceInfoAdapter(compareResultList, this);
-        recyclerShowFaceInfo.setAdapter(adapter);
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        int spanCount = (int) (dm.widthPixels / (getResources().getDisplayMetrics().density * 100 + 0.5f));
-        recyclerShowFaceInfo.setLayoutManager(new GridLayoutManager(this, spanCount));
-        recyclerShowFaceInfo.setItemAnimator(new DefaultItemAnimator());
+        // adapter = new ShowFaceInfoAdapter(compareResultList, this);
+        //recyclerShowFaceInfo.setAdapter(adapter);
+        // DisplayMetrics dm = getResources().getDisplayMetrics();
+        // int spanCount = (int) (dm.widthPixels / (getResources().getDisplayMetrics().density * 100 + 0.5f));
+        //recyclerShowFaceInfo.setLayoutManager(new GridLayoutManager(this, spanCount));
+        //recyclerShowFaceInfo.setItemAnimator(new DefaultItemAnimator());
+        openBroadcast();
+        TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("");
     }
+
+
+    public void openBroadcast() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");//连上与否
+        networkBroadcast = new networkBroadcast();
+        this.registerReceiver(networkBroadcast, intentFilter);
+    }
+
 
     @Override
     public void onGlobalLayout() {
@@ -291,9 +481,7 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
             ActivityCompat.requestPermissions(this, NEEDED_PERMISSIONS, ACTION_REQUEST_PERMISSIONS);
         } else {
             initEngine();
-            initCamera();;
-            textToSpeechUtils = new TextToSpeechUtils(Utils.getContext());
-            //jumpshuaka();
+            initCamera();
         }
     }
 
@@ -318,8 +506,6 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
                 16, MAX_DETECT_NUM, FaceEngine.ASF_FACE_RECOGNITION | FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_LIVENESS);
         VersionInfo versionInfo = new VersionInfo();
         faceEngine.getVersion(versionInfo);
-        LogUtils.a("initEngine:  init: " + afCode + "  version:" + versionInfo);
-
         if (afCode != ErrorInfo.MOK) {
             Toast.makeText(this, getString(R.string.init_failed, afCode), Toast.LENGTH_SHORT).show();
         }
@@ -341,13 +527,12 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
         final FaceListener faceListener = new FaceListener() {
             @Override
             public void onFail(Exception e) {
-                LogUtils.e("onFail: " + e.getMessage());
+                // LogUtils.a("onFail: " + e.getMessage());
             }
 
             //请求FR的回调
             @Override
             public void onFaceFeatureInfoGet(@Nullable final FaceFeature faceFeature, final Integer requestId) {
-
                 //FR成功
                 if (faceFeature != null) {
 //                    Log.i(TAG, "onPreview: fr end = " + System.currentTimeMillis() + " trackId = " + requestId);
@@ -356,6 +541,7 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
                         if (App.byteface == null) {
                             return;
                         }
+                        LogUtils.a("活体检测通过，搜索特征");
                         compareFace(faceFeature, requestId);
                     }
                     //活体检测未出结果，延迟100ms再执行该函数
@@ -387,7 +573,6 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
                 previewSize = camera.getParameters().getPreviewSize();
                 drawHelper = new DrawHelper(previewSize.width, previewSize.height, previewView.getWidth(), previewView.getHeight(), displayOrientation
                         , cameraId, false, false, false);
-                LogUtils.a("onCameraOpened: " + drawHelper.toString());
                 faceHelper = new FaceHelper.Builder()
                         .faceEngine(faceEngine)
                         .frThreadNum(MAX_DETECT_NUM)
@@ -397,16 +582,17 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
                         .build();
             }
 
-
             @Override
             public void onPreview(final byte[] nv21, Camera camera) {
                 if (faceRectView != null) {
                     faceRectView.clearFaceInfo();
                 }
-                // float similarity = FaceUtils.getFaceUtils().similarity(App.byteface, nv21, camera.getParameters().getPreviewSize());
+                //float similarity = FaceUtils.getFaceUtils().similarity(App.byteface, nv21, camera.getParameters().getPreviewSize());
                 // LogUtils.a("人脸相似度："+similarity);
                 List<FacePreviewInfo> facePreviewInfoList = faceHelper.onPreviewFrame(nv21);
+
                 if (facePreviewInfoList != null && faceRectView != null && drawHelper != null) {
+
                     drawPreviewInfo(facePreviewInfoList);
                 }
                 clearLeftFace(facePreviewInfoList);
@@ -419,7 +605,7 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
                          */
                         if (requestFeatureStatusMap.get(facePreviewInfoList.get(i).getTrackId()) == null
                                 || requestFeatureStatusMap.get(facePreviewInfoList.get(i).getTrackId()) == RequestFeatureStatus.FAILED) {
-                            LogUtils.a("requestFeatureStatusMap.get(facePreviewInfoList.get(i).getTrackId()) == null");
+                            //LogUtils.a("requestFeatureStatusMap.get(facePreviewInfoList.get(i).getTrackId()) == null");
                             requestFeatureStatusMap.put(facePreviewInfoList.get(i).getTrackId(), RequestFeatureStatus.SEARCHING);
                             faceHelper.requestFaceFeature(nv21, facePreviewInfoList.get(i).getFaceInfo(), previewSize.width, previewSize.height, FaceEngine.CP_PAF_NV21, facePreviewInfoList.get(i).getTrackId());
 //                            Log.i(TAG, "onPreview: fr start = " + System.currentTimeMillis() + " trackId = " + facePreviewInfoList.get(i).getTrackId());
@@ -472,7 +658,7 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
             for (int i = compareResultList.size() - 1; i >= 0; i--) {
                 if (!keySet.contains(compareResultList.get(i).getTrackId())) {
                     compareResultList.remove(i);
-                    adapter.notifyItemRemoved(i);
+                    //adapter.notifyItemRemoved(i);
                 }
             }
         }
@@ -537,17 +723,16 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
         Observable.create(new ObservableOnSubscribe<CompareResult>() {
             @Override
             public void subscribe(ObservableEmitter<CompareResult> emitter) {
-                if (!isrecognition) {
+                if (recognitionstate != 1) {
+                    return;
+                }
+                if (compareNum >= fail_num) {
+                    handler.post(runnable_recognition_fail);
                     return;
                 }
                 compareNum++;
-                if (compareNum > 5) {
-                    textToSpeechUtils.notifyNewMessage("人脸识别失败，最大相似度" + compareSimilar);
-                    exit();
-                    return;
-                }
                 FaceFeature faceFeature = new FaceFeature(App.byteface);
-                CompareResult compareResult = FaceServer.getInstance().getSimilar(faceFeature, faceFt, App.police_name + "第" + compareNum + "次");
+                CompareResult compareResult = FaceServer.getInstance().getSimilar(faceFeature, faceFt, App.police_name);
                 if (compareResult == null) {
                     emitter.onError(null);
                 } else {
@@ -566,10 +751,11 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
 
                     @Override
                     public void onNext(CompareResult compareResult) {
-                        if (compareResult == null || compareResult.getUserName() == null) {
+                        if (compareResult == null || compareResult.getUserName() == null || recognitionstate != 1) {
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
                             return;
                         }
+                        LogUtils.a("相似度" + compareResult.getSimilar());
                         if (compareResult.getSimilar() > SIMILAR_THRESHOLD) {
                             boolean isAdded = false;
                             if (compareResultList == null) {
@@ -586,21 +772,22 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
                                 //对于多人脸搜索，假如最大显示数量为 MAX_DETECT_NUM 且有新的人脸进入，则以队列的形式移除
                                 if (compareResultList.size() >= MAX_DETECT_NUM) {
                                     compareResultList.remove(0);
-                                    adapter.notifyItemRemoved(0);
+                                    //adapter.notifyItemRemoved(0);
                                 }
                                 //添加显示人员时，保存其trackId
                                 compareResult.setTrackId(requestId);
                                 compareResultList.add(compareResult);
-                                adapter.notifyItemInserted(compareResultList.size() - 1);
+                                // adapter.notifyItemInserted(compareResultList.size() - 1);
                             }
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.SUCCEED);
                             faceHelper.addName(requestId, compareResult.getUserName());
-                            textToSpeechUtils.notifyNewMessage(compareResult.getUserName() + "识别成功");
+                           //TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage(compareResult.getUserName());//+ "识别成功"语音删除
+                            LogUtils.a("识别成功时间");
                             //上传照片
                             cameraHelper.takePictures(policeNum);
                             //发送卡号、成功、开门
                             SerialPortUtils.gethelp().successOpenDoor(policeNum);
-                            exit();
+                            displaysubtitles(1);
                         } else {
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
                         }
@@ -618,24 +805,14 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
                 });
     }
 
-
-
-
-    public void exit() {//退出至等待页面
-        isrecognition = false;
-        handler.post(runnable);//更新进入等待页面
-        App.castMemory();//刷卡人脸置空
-        compareNum = 0;
-        compareSimilar = 0;
-        handler.removeCallbacks(runnable_time_out);
-    }
-
-
     @Override
     protected void onDestroy() {
         if (cameraHelper != null) {
             cameraHelper.release();
             cameraHelper = null;
+        }
+        if (networkBroadcast != null) {
+            unregisterReceiver(networkBroadcast);
         }
         //faceHelper中可能会有FR耗时操作仍在执行，加锁防止crash
         if (faceHelper != null) {
@@ -655,7 +832,7 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
     }
 
     public void jumptoSetting(View view) {
-        if (!isrecognition && isFastDoubleClick()) {
+        if (recognitionstate == 0 && isFastDoubleClick()) {
             showdkdialog();
         }
     }
@@ -673,6 +850,17 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
         }
     }
 
+    private boolean isswipingcardClick() {
+        long time = System.currentTimeMillis();
+        long timeD = time - lastClickTime;
+        lastClickTime = time;
+        if (timeD >= 1000) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private void showdkdialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final AlertDialog dialog = builder.create();
@@ -681,17 +869,25 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
         Button button = (Button) view.findViewById(R.id.dialog_password_confirm);
         Button button_cancel = (Button) view.findViewById(R.id.dialog_password_cancel);
         EditText editText = (EditText) view.findViewById(R.id.dialog_password_edittext);
-        dialog.setCanceledOnTouchOutside(true);
 
+        dialog.setCanceledOnTouchOutside(true);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String text = editText.getText().toString();
                 LogUtils.a(text);
-                if (text.equals("123456")) {
-                    startActivity(new Intent(FaceRecognitionActivity.this, SettingActivity.class));
+                if (text.equals("njzx8421")) {//1管理员
+                    api.setStatusBar(true);
+                    Intent intent = new Intent(FaceRecognitionActivity.this, SettingActivity.class);
+                    intent.putExtra("mode",1);
+                    startActivity(intent);
+                }else if (text.equals("123456")) {//2干警
+                    api.setStatusBar(true);
+                    Intent intent = new Intent(FaceRecognitionActivity.this, SettingActivity.class);
+                    intent.putExtra("mode",2);
+                    startActivity(intent);
                 } else {
-                    textToSpeechUtils.notifyNewMessage("密码错误");
+                    TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("密码错误");
                 }
                 dialog.dismiss();
             }
@@ -700,7 +896,6 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
-                hideBottomUIMenu();
             }
         });
         editText.addTextChangedListener(new TextWatcher() {
@@ -714,7 +909,9 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (editable.length() == 6) {
+                if (editable.length() == 8 && editable.toString().equals("njzx8421")) {
+                    button.callOnClick();
+                }else if (editable.length() == 6 && editable.toString().equals("123456")) {
                     button.callOnClick();
                 }
             }
@@ -726,10 +923,11 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
             public void run() {
                 if (dialog.isShowing()) {
                     dialog.dismiss();
-                    hideBottomUIMenu();
                 }
             }
         };
-        handler.postDelayed(dialogrunnable, 6000);
+        handler.postDelayed(dialogrunnable, 20000);
     }
+
+
 }

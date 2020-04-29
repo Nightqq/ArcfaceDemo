@@ -7,7 +7,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="400dp"
+        android:layout_height="600dp"
         android:background="@drawable/bg_frame"
         android:orientation="vertical">
 
@@ -26,6 +26,7 @@
                 android:textSize="30sp" />
 
             <TextView
+                android:id="@+id/dialog_terminal_serial"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
@@ -54,6 +55,7 @@
                 android:textSize="30sp" />
 
             <TextView
+                android:id="@+id/dialog_terminal_device_num"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
@@ -77,11 +79,41 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:text="IP    地    址："
+                android:text="设 备  名 称："
                 android:textColor="#fff"
                 android:textSize="30sp" />
 
             <TextView
+                android:id="@+id/dialog_terminal_device_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="测试终端1"
+                android:textColor="#fff"
+                android:textSize="30sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/setting_entry_view_color" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="本地IP地址："
+                android:textColor="#fff"
+                android:textSize="30sp" />
+
+            <TextView
+                android:id="@+id/dialog_terminal_ip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
@@ -105,7 +137,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:text="端             口："
+                android:text="本 地  端 口："
                 android:textColor="#fff"
                 android:textSize="30sp" />
 
@@ -122,13 +154,72 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/setting_entry_view_color" />
-
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:orientation="horizontal">
-
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="服 务  器 IP："
+                android:textColor="#fff"
+                android:textSize="30sp" />
+            <EditText
+                android:id="@+id/dialog_terminal_serverip_edt"
+                android:hint="192.168.0.10"
+                android:textColorHint="#fff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:inputType="number"
+                android:textColor="#fff"
+                android:textSize="30sp" />
+            <Button
+                android:id="@+id/dialog_terminal_serverip_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="30dp"
+                android:text="修改"
+                android:textColor="#436EEE"
+                android:textSize="28sp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="服务器端口："
+                android:textColor="#fff"
+                android:textSize="30sp" />
+            <EditText
+                android:id="@+id/dialog_terminal_serverport_edt"
+                android:hint="           "
+                android:textColorHint="#fff"
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:inputType="number"
+                android:textColor="#fff"
+                android:textSize="30sp" />
+            <Button
+                android:id="@+id/dialog_terminal_serverport_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="30dp"
+                android:text="修改"
+                android:textColor="#436EEE"
+                android:textSize="28sp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -136,25 +227,40 @@
                 android:text="识 别  阈 值："
                 android:textColor="#fff"
                 android:textSize="30sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
+            <EditText
+                android:gravity="center_horizontal"
+                android:id="@+id/dialog_terminal_threshold_edt"
+                android:hint="0.8"
+                android:textColorHint="#fff"
+                android:layout_width="160dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:text="0.8F"
+                android:inputType="number"
                 android:textColor="#fff"
                 android:textSize="30sp" />
+            <TextView
+                android:layout_width="20dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="1dp"
+                android:text="F"
+                android:textColor="#fff"
+                android:textSize="30sp" />
+            <Button
+                android:id="@+id/dialog_terminal_threshold_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:text="修改"
+                android:textColor="#436EEE"
+                android:textSize="28sp" />
         </LinearLayout>
-
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/setting_entry_view_color" />
-
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <TextView
@@ -165,26 +271,41 @@
                 android:textColor="#fff"
                 android:textSize="30sp" />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <EditText
+                android:gravity="center_horizontal"
+                android:id="@+id/dialog_terminal_failnum_edt"
+                android:hint="3"
+                android:textColorHint="#fff"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:text="5次"
+                android:inputType="number"
                 android:textColor="#fff"
                 android:textSize="30sp" />
+            <TextView
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="1dp"
+                android:text="次"
+                android:textColor="#fff"
+                android:textSize="30sp" />
+            <Button
+                android:id="@+id/dialog_terminal_failnum_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:text="修改"
+                android:textColor="#436EEE"
+                android:textSize="28sp" />
         </LinearLayout>
-
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/setting_entry_view_color" />
-
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:orientation="horizontal">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -192,14 +313,32 @@
                 android:text="超 时  时 间："
                 android:textColor="#fff"
                 android:textSize="30sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
+            <EditText
+                android:gravity="center_horizontal"
+                android:id="@+id/dialog_terminal_outtime_edt"
+                android:hint="3000"
+                android:textColorHint="#fff"
+                android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:text="5秒"
+                android:inputType="number"
                 android:textColor="#fff"
                 android:textSize="30sp" />
+            <TextView
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="1dp"
+                android:text="毫秒"
+                android:textColor="#fff"
+                android:textSize="30sp" />
+            <Button
+                android:id="@+id/dialog_terminal_outtime_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:text="修改"
+                android:textColor="#436EEE"
+                android:textSize="28sp" />
         </LinearLayout>
 
         <View

@@ -7,13 +7,94 @@
     android:background="@drawable/bg_screen_default"
     android:orientation="vertical"
     tools:context=".activity.setting.SettingActivity">
+    <LinearLayout
+        android:id="@+id/activity_setting_gone"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:onClick="jumpToterminalinform"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/setting_entry_height"
+            android:gravity="center_vertical"
+            android:text="设备信息"
+            android:textColor="@color/setting_entry_text_color"
+            android:textSize="@dimen/setting_entry_text_size" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/setting_entry_view_color" />
 
-    <TextView
-        android:onClick="jumpToterminalinform"
+        <TextView
+            android:onClick="jumpToupdatedevice"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/setting_entry_height"
+            android:gravity="center_vertical"
+            android:text="更新注册设备"
+            android:textColor="@color/setting_entry_text_color"
+            android:textSize="@dimen/setting_entry_text_size" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/setting_entry_view_color" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/setting_entry_height"
+            android:gravity="center_vertical"
+            android:onClick="jumpToGetPoliceFace"
+            android:text="获取所有干警数据"
+            android:textColor="@color/setting_entry_text_color"
+            android:textSize="@dimen/setting_entry_text_size" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/setting_entry_view_color" />
+        <TextView
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/setting_entry_height"
+            android:gravity="center_vertical"
+            android:onClick="jumpTotest"
+            android:text="测试页面"
+            android:textColor="@color/setting_entry_text_color"
+            android:textSize="@dimen/setting_entry_text_size" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/setting_entry_view_color" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/setting_entry_height"
+            android:gravity="center_vertical"
+            android:onClick="jumpTodeleteAllFace"
+            android:text="删除所有干警数据"
+            android:textColor="@color/setting_entry_text_color"
+            android:textSize="@dimen/setting_entry_text_size" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/setting_entry_view_color" />
+    </LinearLayout>
+
+   <!-- <TextView
         android:layout_width="match_parent"
         android:layout_height="@dimen/setting_entry_height"
         android:gravity="center_vertical"
-        android:text="设备信息"
+        android:onClick="jumpTodeleteone"
+        android:text="打开目录"
+        android:textColor="@color/setting_entry_text_color"
+        android:textSize="@dimen/setting_entry_text_size" />-->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/setting_entry_view_color" />
+    <TextView
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_entry_height"
+        android:gravity="center_vertical"
+        android:onClick="jumpTogetLastVersion"
+        android:text="获取最新版本信息"
         android:textColor="@color/setting_entry_text_color"
         android:textSize="@dimen/setting_entry_text_size" />
     <View
@@ -24,8 +105,8 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/setting_entry_height"
         android:gravity="center_vertical"
-        android:onClick="jumpToGetPoliceFace"
-        android:text="获取所有干警数据"
+        android:onClick="jumpToupdateApk"
+        android:text="更新apk"
         android:textColor="@color/setting_entry_text_color"
         android:textSize="@dimen/setting_entry_text_size" />
     <View

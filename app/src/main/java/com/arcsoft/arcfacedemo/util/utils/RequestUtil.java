@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -58,6 +59,11 @@ public class RequestUtil {
         this(methodType, url, null, null, null, null, null, null, paramsMap, headerMap, callBack);
 
     }
+    RequestUtil(String methodType, String url, Map<String, String> paramsMap, Map<String, String> headerMap, CallBackUtil callBack,long time) {
+
+        this(methodType, url, null, null, null, null, null, null, paramsMap, headerMap, callBack,time);
+
+    }
 
     RequestUtil(String methodType, String url, String jsonStr, Map<String, String> headerMap, CallBackUtil callBack) {
 
@@ -84,95 +90,99 @@ public class RequestUtil {
     }
 
     private RequestUtil(String methodType, String url, String jsonStr, File file, List<File> fileList, String fileKey, Map<String, File> fileMap, String fileType, Map<String, String> paramsMap, Map<String, String> headerMap, CallBackUtil callBack) {
-
         mMetyodType = methodType;
-
         mUrl = url;
-
         mJsonStr = jsonStr;
-
         mFile = file;
-
         mfileList = fileList;
-
         mfileKey = fileKey;
-
         mfileMap = fileMap;
-
         mFileType = fileType;
-
         mParamsMap = paramsMap;
-
         mHeaderMap = headerMap;
-
         mCallBack = callBack;
-
         getInstance();
-
     }
-
+    private RequestUtil(String methodType, String url, String jsonStr, File file, List<File> fileList, String fileKey, Map<String, File> fileMap, String fileType, Map<String, String> paramsMap, Map<String, String> headerMap, CallBackUtil callBack,long time) {
+        mMetyodType = methodType;
+        mUrl = url;
+        mJsonStr = jsonStr;
+        mFile = file;
+        mfileList = fileList;
+        mfileKey = fileKey;
+        mfileMap = fileMap;
+        mFileType = fileType;
+        mParamsMap = paramsMap;
+        mHeaderMap = headerMap;
+        mCallBack = callBack;
+        getInstance(time);
+    }
     /**
      * 创建OKhttpClient实例。
      */
 
     private void getInstance() {
-
         mOkHttpClient = new OkHttpClient();
-
         mRequestBuilder = new Request.Builder();
-
         if (mFile != null || mfileList != null || mfileMap != null) {//先判断是否有文件，
-
             setFile();
-
         } else {
-
             //设置参数
-
             switch (mMetyodType) {
-
                 case OkhttpUtil.METHOD_GET:
-
                     setGetParams();
-
                     break;
-
                 case OkhttpUtil.METHOD_POST:
-
                     mRequestBuilder.post(getRequestBody());
-
                     break;
-
                 case OkhttpUtil.METHOD_PUT:
-
                     mRequestBuilder.put(getRequestBody());
-
                     break;
-
                 case OkhttpUtil.METHOD_DELETE:
-
                     mRequestBuilder.delete(getRequestBody());
-
                     break;
-
+            }
+        }
+        mRequestBuilder.url(mUrl);
+        if (mHeaderMap != null) {
+            setHeader();
+        }
+        //mRequestBuilder.addHeader("Authorization","Bearer "+"token");可以把token添加到这儿
+        mOkHttpRequest = mRequestBuilder.build();
+    }
+    private void getInstance(long time) {
+        LogUtils.a("设置超时时间");
+        mOkHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(time, TimeUnit.MILLISECONDS)
+                .build();
+        mRequestBuilder = new Request.Builder();
+        if (mFile != null || mfileList != null || mfileMap != null) {//先判断是否有文件，
+            setFile();
+        } else {
+            //设置参数
+            switch (mMetyodType) {
+                case OkhttpUtil.METHOD_GET:
+                    setGetParams();
+                    break;
+                case OkhttpUtil.METHOD_POST:
+                    mRequestBuilder.post(getRequestBody());
+                    break;
+                case OkhttpUtil.METHOD_PUT:
+                    mRequestBuilder.put(getRequestBody());
+                    break;
+                case OkhttpUtil.METHOD_DELETE:
+                    mRequestBuilder.delete(getRequestBody());
+                    break;
             }
 
         }
-
         mRequestBuilder.url(mUrl);
-
         if (mHeaderMap != null) {
-
             setHeader();
-
         }
-
         //mRequestBuilder.addHeader("Authorization","Bearer "+"token");可以把token添加到这儿
-
         mOkHttpRequest = mRequestBuilder.build();
-
     }
-
     /**
      * 得到body对象
      */
@@ -200,9 +210,9 @@ public class RequestUtil {
         if (mParamsMap != null) {
 
             for (String key : mParamsMap.keySet()) {
-
-                formBody.add(key, mParamsMap.get(key));
-
+                if (mParamsMap.get(key) != null) {
+                    formBody.add(key, mParamsMap.get(key));
+                }
             }
 
         }
@@ -394,16 +404,14 @@ public class RequestUtil {
     }
 
     void execute() {
-
+        LogUtils.a("开始请求数据时间execute");
         mOkHttpClient.newCall(mOkHttpRequest).enqueue(new Callback() {
-
             @Override
             public void onFailure(final Call call, final IOException e) {
                 if (mCallBack != null) {
                     mCallBack.onError(call, e);
                 }
             }
-
             @Override
             public void onResponse(final Call call, final Response response) throws IOException {
                 if (mCallBack != null) {

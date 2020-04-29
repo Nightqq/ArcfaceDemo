@@ -3,9 +3,7 @@ package com.arcsoft.arcfacedemo.util.server.server;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.widget.Toast;
 
 import com.arcsoft.arcfacedemo.util.utils.ConfigUtil;
 

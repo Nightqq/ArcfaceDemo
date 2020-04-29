@@ -8,8 +8,8 @@ android {
         applicationId "com.arcsoft.arcfacedemo"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        versionCode 6
+        versionName "3.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters "armeabi-v7a"
@@ -42,7 +42,7 @@ android {
 }
 
 greendao {
-    schemaVersion 4
+    schemaVersion 5
     daoPackage 'com.arcsoft.arcfacedemo.dao'
     targetGenDir 'src/main/java'
 }

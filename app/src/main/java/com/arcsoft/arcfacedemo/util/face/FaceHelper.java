@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.arcsoft.arcfacedemo.model.FacePreviewInfo;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
-import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
 import com.arcsoft.arcfacedemo.util.utils.TrackUtil;
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
@@ -110,8 +109,6 @@ public class FaceHelper {
                 int code = faceEngine.detectFaces(nv21, previewSize.width, previewSize.height, FaceEngine.CP_PAF_NV21, faceInfoList);
                 if (code != ErrorInfo.MOK) {
                     faceListener.onFail(new Exception("ft failed,code is " + code));
-                } else {
-//                    Log.i(TAG, "onPreviewFrame: ft costTime = " + (System.currentTimeMillis() - ftStartTime) + "ms");
                 }
                 /*
                  * 活体检测只支持一个人脸，所以只保留最大的人脸
@@ -127,16 +124,18 @@ public class FaceHelper {
                 if (code != ErrorInfo.MOK) {
                     faceListener.onFail(new Exception("getLiveness failed,code is " + code));
                 }
+            }else {
+                LogUtils.a("faceEngine == null");
             }
             facePreviewInfoList.clear();
-            if (livenessInfoList.size() == faceInfoList.size()) {
+            if (livenessInfoList.size()>0&&livenessInfoList.size() == faceInfoList.size()) {
+                //LogUtils.a("135livenessInfoList:"+livenessInfoList.size()+"faceInfoList:"+faceInfoList.size());
                 for (int i = 0; i < faceInfoList.size(); i++) {
                     facePreviewInfoList.add(new FacePreviewInfo(faceInfoList.get(i), livenessInfoList.get(i), currentTrackIdList.get(i)));
                 }
             }
             return facePreviewInfoList;
         } else {
-            LogUtils.a("faceListener == null");
             facePreviewInfoList.clear();
             return facePreviewInfoList;
         }
@@ -154,7 +153,6 @@ public class FaceHelper {
         private byte[] nv21Data;
 
         private FaceRecognizeRunnable(byte[] nv21Data, FaceInfo faceInfo, int width, int height, int format, Integer trackId) {
-            LogUtils.a("FaceRecognizeRunnable");
             if (nv21Data == null) {
                 return;
             }
@@ -203,7 +201,7 @@ public class FaceHelper {
      *
      * @param ftFaceList 传入的人脸列表
      */
-    public void refreshTrackId(List<FaceInfo> ftFaceList) {
+    private void refreshTrackId(List<FaceInfo> ftFaceList) {
         currentTrackIdList.clear();
         //每项预先填充-1
         for (int i = 0; i < ftFaceList.size(); i++) {

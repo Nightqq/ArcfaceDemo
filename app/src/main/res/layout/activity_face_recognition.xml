@@ -21,16 +21,18 @@
         android:background="@drawable/ic_top_default"
         android:gravity="center_horizontal">
 
+
         <ImageView
             android:onClick="jumptoSetting"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:layout_marginTop="15dp"
-            android:src="@drawable/logo" />
+            android:layout_width="180dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="1dp"
+            android:src="@drawable/njzxlogo" />
     </RelativeLayout>
 
 
     <LinearLayout
+        android:visibility="gone"
         android:id="@+id/face_recognition_Linear"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -45,6 +47,7 @@
             android:layout_height="760dp"
             android:layout_gravity="center"
             android:layout_margin="21dp">
+
             <TextureView
                 android:id="@+id/face_recognition_texturepreview"
                 android:layout_width="match_parent"
@@ -54,26 +57,52 @@
                 android:id="@+id/face_recognition_facerectview"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
+            <TextView
+                android:id="@+id/face_recognition_subtitles"
+                android:visibility="gone"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center_horizontal"
+                android:textColor="#f00"
+                android:textSize="80sp"
+                android:text="识别失败"
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </FrameLayout>
 
         <TextView
             android:id="@+id/face_recognition_tectview"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="12dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center"
             android:text="姓名"
             android:textColor="#fff"
-            android:textSize="30sp" />
+            android:textSize="44sp" />
     </LinearLayout>
 
 
     <FrameLayout
-        android:visibility="gone"
+        android:visibility="visible"
         android:id="@+id/face_recognition_FrameLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_marginTop="152dp"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:visibility="gone"
+                android:layout_marginLeft="50dp"
+                android:textColor="#ff0"
+                android:text="测试模式"
+                android:textSize="30sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
         <LinearLayout
             android:layout_marginTop="212dp"
             android:layout_gravity="center_horizontal"
@@ -111,6 +140,15 @@
                 android:textSize="30sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
+            <TextView
+                android:visibility="gone"
+                android:layout_marginTop="120dp"
+                android:id="@+id/activity_face_recognition_networkState"
+                android:textColor="#fff"
+                android:text="网络状态：正常"
+                android:textSize="22sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
         <ImageView
@@ -120,12 +158,13 @@
             android:src="@drawable/ic_index_center_bright"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+
     </FrameLayout>
 
 
 
 
-    <Switch
+   <!-- <Switch
         android:visibility="gone"
         android:id="@+id/switch_liveness_detect"
         android:layout_width="wrap_content"
@@ -144,5 +183,5 @@
         android:visibility="gone"
         android:id="@+id/recycler_view_person"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content" />-->
 </RelativeLayout>

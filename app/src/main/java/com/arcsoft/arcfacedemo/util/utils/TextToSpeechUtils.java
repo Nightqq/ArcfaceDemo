@@ -13,12 +13,20 @@ public class TextToSpeechUtils implements TextToSpeech.OnInitListener {
     private final ConcurrentLinkedQueue<String> mBufferedMessages;//消息队列
     private Context mContext;
     private boolean mIsReady;//标识符
+    private static TextToSpeechUtils textToSpeechUtils;
 
 
-    public TextToSpeechUtils(Context context) {
-        this.mContext = context;//获取上下文
+    private TextToSpeechUtils() {
+        this.mContext = Utils.getContext();//获取上下文
         this.mBufferedMessages = new ConcurrentLinkedQueue<String>();//实例化队列
         this.mTextToSpeech = new TextToSpeech(this.mContext, this);//实例化TTS
+    }
+
+    public static TextToSpeechUtils getTextToSpeechHelp() {
+        if (textToSpeechUtils == null) {
+            textToSpeechUtils = new TextToSpeechUtils();
+        }
+        return textToSpeechUtils;
     }
 
     //初始化TTS引擎
@@ -63,7 +71,7 @@ public class TextToSpeechUtils implements TextToSpeech.OnInitListener {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(TextToSpeech.Engine.KEY_PARAM_STREAM, "STREAM_NOTIFICATION");//设置播放类型（音频流类型）
         this.mTextToSpeech.setPitch(1.1f);// 设置音调，值越大声音越尖（女生），值越小则变成男声,1.0是常规
-        this.mTextToSpeech.setSpeechRate(1.1f);//语速
+        this.mTextToSpeech.setSpeechRate(1.5f);//语速
         this.mTextToSpeech.speak(message, TextToSpeech.QUEUE_ADD, params);//将这个发音任务添加当前任务之后
         this.mTextToSpeech.playSilence(100, TextToSpeech.QUEUE_ADD, params);//间隔多长时间
     }

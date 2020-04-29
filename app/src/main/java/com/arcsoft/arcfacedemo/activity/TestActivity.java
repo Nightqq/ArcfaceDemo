@@ -2,6 +2,7 @@ package com.arcsoft.arcfacedemo.activity;
 
 import android.Manifest;
 import android.app.DownloadManager;
+import android.app.kingsun.KingsunSmartAPI;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -47,6 +48,7 @@ public class TestActivity extends AppCompatActivity implements OnServerChangeLis
     private byte[] mBuffer;
     private EditText edi_ip;
     private EditText test_name;
+    private KingsunSmartAPI api;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,12 +165,15 @@ public class TestActivity extends AppCompatActivity implements OnServerChangeLis
     }
     public void jumpToopenserialport(View view) {
 
-        SerialPortUtils.gethelp().openSerialPort();
+        //SerialPortUtils.gethelp().openSerialPort();
+
+
     }
     public void jumpTosendinstructions(View view) {
-        byte[] bytes = SwitchUtils.hexStringToByte("AABB0300020002");
+
+       /* byte[] bytes = SwitchUtils.hexStringToByte("AABB0300020103");
         LogUtils.a(SwitchUtils.byte2HexStr(bytes));
-        SerialPortUtils.gethelp().sendSerialPort(bytes);
+        SerialPortUtils.gethelp().sendSerialPort(bytes);*/
     }
 
     public void jumpTooupdate(View view) {//更新

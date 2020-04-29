@@ -13,6 +13,8 @@ public class ConfigUtil {
     private static final String Start_self = "startself";
     private static final String Success_Open_Door = "successOpenDoor";
 
+    public static final String Apk_name = "查看器.apk";
+
     public static void setTrackId(Context context, int trackId) {
         if (context == null) {
             return;

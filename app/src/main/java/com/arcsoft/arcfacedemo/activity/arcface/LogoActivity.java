@@ -2,7 +2,6 @@ package com.arcsoft.arcfacedemo.activity.arcface;
 
 import android.Manifest;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
@@ -15,21 +14,26 @@ import com.arcsoft.arcfacedemo.R;
 import com.arcsoft.arcfacedemo.activity.BaseActivity;
 import com.arcsoft.arcfacedemo.activity.TestActivity;
 import com.arcsoft.arcfacedemo.common.Constants;
+import com.arcsoft.arcfacedemo.dao.bean.PoliceFace;
 import com.arcsoft.arcfacedemo.dao.bean.TerminalInformation;
+import com.arcsoft.arcfacedemo.dao.helper.PoliceFaceHelp;
 import com.arcsoft.arcfacedemo.dao.helper.TerminalInformationHelp;
 import com.arcsoft.arcfacedemo.net.RequestHelper;
+import com.arcsoft.arcfacedemo.util.server.net.NetWorkUtils;
 import com.arcsoft.arcfacedemo.util.utils.ConfigUtil;
 import com.arcsoft.arcfacedemo.util.utils.DeviceUtils;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
 import com.arcsoft.arcfacedemo.util.utils.PermissionsUtils;
 import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
+import com.arcsoft.arcfacedemo.util.utils.TextToSpeechUtils;
 import com.arcsoft.face.ActiveFileInfo;
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -40,17 +44,28 @@ import io.reactivex.schedulers.Schedulers;
 
 public class LogoActivity extends BaseActivity {
 
+    @BindView(R.id.activity_logo_jump)
+    TextView activityLogoJump;
+    private Button button;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_logo);
+        ButterKnife.bind(this);
+        ConfigUtil.setFtOrient(this, FaceEngine.ASF_OP_0_HIGHER_EXT);
         if (!ConfigUtil.getFirstStart()) {
-            startActivity(FaceRecognitionActivity.class);
-            this.finish();
-            return;
+            List<PoliceFace> policeFaceAllListFromDB = PoliceFaceHelp.getPoliceFaceAllListFromDB();
+            if (policeFaceAllListFromDB != null && policeFaceAllListFromDB.size() > 0) {
+                activityLogoJump.callOnClick();
+                this.finish();
+                return;
+            } else {
+                showdkdialog();
+                button.callOnClick();
+            }
         }
         getpermiss();
-
     }
 
     //动态获取权限
@@ -112,8 +127,22 @@ public class LogoActivity extends BaseActivity {
                     public void onNext(Integer activeCode) {
                         if (activeCode == ErrorInfo.MOK) {
                             showToast(getString(R.string.active_success));
+                            ConfigUtil.setFirstStart();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    activityLogoJump.setVisibility(View.VISIBLE);
+                                }
+                            });
                         } else if (activeCode == ErrorInfo.MERR_ASF_ALREADY_ACTIVATED) {
                             showToast(getString(R.string.already_activated));
+                            ConfigUtil.setFirstStart();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    activityLogoJump.setVisibility(View.VISIBLE);
+                                }
+                            });
                         } else {
                             showToast(getString(R.string.active_failed, activeCode));
                         }
@@ -147,7 +176,7 @@ public class LogoActivity extends BaseActivity {
         AlertDialog dialog = builder.create();
         View view = View.inflate(this, R.layout.dialog_download_progress, null);
         dialog.setView(view, 0, 0, 0, 0);
-        Button button = (Button) view.findViewById(R.id.dialog_download_confirm);
+        button = (Button) view.findViewById(R.id.dialog_download_confirm);
         Button button_cancel = (Button) view.findViewById(R.id.dialog_download_cancel);
         TextView textView = (TextView) view.findViewById(R.id.dialog_download_text);
 
@@ -169,6 +198,11 @@ public class LogoActivity extends BaseActivity {
 
                         if (msgs.equals("存储数据成功") || msgs.equals("存储数据成功")) {
                             dialog.dismiss();
+                            if (model == 1) {
+                                startActivity(FaceRecognitionActivity.class);
+                            } else if (model == 2) {
+                                startActivity(TestActivity.class);
+                            }
                             return;
                         } else if (isNumeric(msgs)) {
                             runOnUiThread(new Runnable() {
@@ -203,7 +237,7 @@ public class LogoActivity extends BaseActivity {
         return true;
     }
 
-    int model = 1;//1干警入监，2犯人点名
+    int model = 2;//1干警入监，2犯人点名
 
     public void jumptonextactivity(View view) {
         if (model == 1) {
@@ -215,9 +249,9 @@ public class LogoActivity extends BaseActivity {
 
     public void jumptoRegistdevice(View view) {
         TerminalInformation terminalInformation = TerminalInformationHelp.getTerminalInformation();
-        if (terminalInformation.getIsregister()){
+        if (terminalInformation.getIsregister()) {
             Toast.makeText(this, "改设备已经注册过", Toast.LENGTH_SHORT).show();
-        }else {
+        } else {
             showRegistdevicedialog();
         }
 
@@ -230,33 +264,39 @@ public class LogoActivity extends BaseActivity {
         dialog.setView(view, 0, 0, 0, 0);
         EditText edtDeviceId = (EditText) view.findViewById(R.id.dialog_device_id);
         EditText edtDeviceName = (EditText) view.findViewById(R.id.dialog_device_name);
-        EditText edtDeviceIP = (EditText) view.findViewById(R.id.dialog_device_ip);
-        TextView edtDevicePort = (TextView) view.findViewById(R.id.dialog_device_port);
+        TextView edtDeviceIP = (TextView) view.findViewById(R.id.dialog_device_ip);
+        edtDeviceIP.setText(NetWorkUtils.getIP());
+        EditText server_ip = (EditText) view.findViewById(R.id.dialog_server_ip);
+        EditText server_port = (EditText) view.findViewById(R.id.dialog_server_port);
         TextView edtDeviceSerial = (TextView) view.findViewById(R.id.dialog_device_Serial);
+        edtDeviceSerial.setText(DeviceUtils.getAndroidID());
         Button edtDeviceconfirm = (Button) view.findViewById(R.id.dialog_device_confirm);
         Button edtDevicecancel = (Button) view.findViewById(R.id.dialog_device_cancel);
         dialog.setCanceledOnTouchOutside(true);
         edtDeviceconfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String deviceId = edtDeviceId.getText().toString();
-                String deviceName = edtDeviceName.getText().toString();
-                String deviceIP = edtDeviceIP.getText().toString();
+                String deviceId = edtDeviceId.getText().toString().replaceAll(" ", "");
+                String deviceName = edtDeviceName.getText().toString().replaceAll(" ", "");
+                String serverip = server_ip.getText().toString().replaceAll(" ", "");
+                String serverport = server_port.getText().toString().replaceAll(" ", "");
                 if (deviceId == null || deviceId.length() == 0) {
                     Toast.makeText(LogoActivity.this, "设备编号不能为空", Toast.LENGTH_SHORT).show();
+                    TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("设备编号不能为空");
                 } else if (deviceName == null || deviceName.length() == 0) {
                     Toast.makeText(LogoActivity.this, "设备名称不能为空", Toast.LENGTH_SHORT).show();
-                } else if (deviceIP == null || deviceIP.length() == 0) {
-                    Toast.makeText(LogoActivity.this, "设备IP不能为空", Toast.LENGTH_SHORT).show();
-                } else if (!isIP(deviceIP)) {
-                    Toast.makeText(LogoActivity.this, "设备IP格式不正确", Toast.LENGTH_SHORT).show();
+                    TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("设备名称不能为空");
+                } else if (serverip == null || serverip.length() == 0 || !SwitchUtils.isIP(serverip)) {
+                    Toast.makeText(LogoActivity.this, "IP格式不正确", Toast.LENGTH_SHORT).show();
+                    TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("IP格式不正确");
                 } else {
                     TerminalInformation terminalInformation = TerminalInformationHelp.getTerminalInformation();
                     terminalInformation.setTerminalNum(deviceId);
                     terminalInformation.setTerminalName(deviceName);
-                    terminalInformation.setServerIP(deviceIP);
-                    terminalInformation.setServerPost("3639");
-                    terminalInformation.setSerial(DeviceUtils.getAndroidID());
+                    terminalInformation.setDeviceIP(NetWorkUtils.getIP());
+                    terminalInformation.setDevicePost("3639");
+                    terminalInformation.setServerIP(serverip);
+                    terminalInformation.setServerPost(serverport);
                     TerminalInformationHelp.savePoliceInfoToDB(terminalInformation);
                     RequestHelper.getRequestHelper().registdevice(terminalInformation, new RequestHelper.OpenDownloadListener() {
                         @Override
@@ -264,14 +304,14 @@ public class LogoActivity extends BaseActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (SwitchUtils.isNumeric(message)){
-                                        if (message.equals("1")){
+                                    if (SwitchUtils.isNumeric(message)) {
+                                        if (message.equals("1")) {
                                             Toast.makeText(LogoActivity.this, "注册成功", Toast.LENGTH_SHORT).show();
                                             dialog.dismiss();
-                                        }else if (message.equals("0")){
+                                        } else if (message.equals("0")) {
                                             Toast.makeText(LogoActivity.this, "超时", Toast.LENGTH_SHORT).show();
                                         }
-                                    }else {
+                                    } else {
                                         Toast.makeText(LogoActivity.this, message, Toast.LENGTH_SHORT).show();
                                     }
                                 }
@@ -290,25 +330,5 @@ public class LogoActivity extends BaseActivity {
         dialog.show();
     }
 
-    boolean isIP(String str) {
-        // 1、首先检查字符串的长度 最短应该是0.0.0.0 7位 最长 000.000.000.000 15位
-        if (str.length() < 7 || str.length() > 15) return false;
-        // 2、按.符号进行拆分，拆分结果应该是4段，"."、"|"、"^"等特殊字符必须用 \ 来进行转义
-        // 而在java字符串中，\ 也是个已经被使用的特殊符号，也需要使用 \ 来转义
-        String[] arr = str.split("\\.");
-        if (arr.length != 4) return false;
-        // 3、检查每个字符串是不是都是数字,ip地址每一段都是0-255的范围
-        for (int i = 0; i < 4; i++) {
-            if (!isNUM(arr[i]) || arr[i].length() == 0 || Integer.parseInt(arr[i]) > 255 || Integer.parseInt(arr[i]) < 0) {
-                return false;
-            }
-        }
-        return true;
-    }
 
-    boolean isNUM(String str) {
-        Pattern p = Pattern.compile("[0-9]*");
-        Matcher m = p.matcher(str);
-        return m.matches();
-    }
 }

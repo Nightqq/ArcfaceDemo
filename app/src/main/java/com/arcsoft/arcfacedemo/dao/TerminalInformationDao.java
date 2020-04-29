@@ -29,12 +29,14 @@ public class TerminalInformationDao extends AbstractDao<TerminalInformation, Lon
         public final static Property TerminalName = new Property(2, String.class, "TerminalName", false, "TERMINAL_NAME");
         public final static Property Serial = new Property(3, String.class, "Serial", false, "SERIAL");
         public final static Property ServerIP = new Property(4, String.class, "ServerIP", false, "SERVER_IP");
-        public final static Property ServerPost = new Property(5, String.class, "ServerPost", false, "SERVER_POST");
-        public final static Property Isregister = new Property(6, boolean.class, "isregister", false, "ISREGISTER");
-        public final static Property RecognitionThreshold = new Property(7, float.class, "RecognitionThreshold", false, "RECOGNITION_THRESHOLD");
-        public final static Property OutTime = new Property(8, long.class, "OutTime", false, "OUT_TIME");
-        public final static Property RecognitionNum = new Property(9, int.class, "RecognitionNum", false, "RECOGNITION_NUM");
-        public final static Property SettingPassword = new Property(10, String.class, "SettingPassword", false, "SETTING_PASSWORD");
+        public final static Property DeviceIP = new Property(5, String.class, "DeviceIP", false, "DEVICE_IP");
+        public final static Property DevicePost = new Property(6, String.class, "DevicePost", false, "DEVICE_POST");
+        public final static Property ServerPost = new Property(7, String.class, "ServerPost", false, "SERVER_POST");
+        public final static Property Isregister = new Property(8, boolean.class, "isregister", false, "ISREGISTER");
+        public final static Property RecognitionThreshold = new Property(9, float.class, "RecognitionThreshold", false, "RECOGNITION_THRESHOLD");
+        public final static Property OutTime = new Property(10, long.class, "OutTime", false, "OUT_TIME");
+        public final static Property RecognitionNum = new Property(11, int.class, "RecognitionNum", false, "RECOGNITION_NUM");
+        public final static Property SettingPassword = new Property(12, String.class, "SettingPassword", false, "SETTING_PASSWORD");
     }
 
 
@@ -55,12 +57,14 @@ public class TerminalInformationDao extends AbstractDao<TerminalInformation, Lon
                 "\"TERMINAL_NAME\" TEXT," + // 2: TerminalName
                 "\"SERIAL\" TEXT," + // 3: Serial
                 "\"SERVER_IP\" TEXT," + // 4: ServerIP
-                "\"SERVER_POST\" TEXT," + // 5: ServerPost
-                "\"ISREGISTER\" INTEGER NOT NULL ," + // 6: isregister
-                "\"RECOGNITION_THRESHOLD\" REAL NOT NULL ," + // 7: RecognitionThreshold
-                "\"OUT_TIME\" INTEGER NOT NULL ," + // 8: OutTime
-                "\"RECOGNITION_NUM\" INTEGER NOT NULL ," + // 9: RecognitionNum
-                "\"SETTING_PASSWORD\" TEXT);"); // 10: SettingPassword
+                "\"DEVICE_IP\" TEXT," + // 5: DeviceIP
+                "\"DEVICE_POST\" TEXT," + // 6: DevicePost
+                "\"SERVER_POST\" TEXT," + // 7: ServerPost
+                "\"ISREGISTER\" INTEGER NOT NULL ," + // 8: isregister
+                "\"RECOGNITION_THRESHOLD\" REAL NOT NULL ," + // 9: RecognitionThreshold
+                "\"OUT_TIME\" INTEGER NOT NULL ," + // 10: OutTime
+                "\"RECOGNITION_NUM\" INTEGER NOT NULL ," + // 11: RecognitionNum
+                "\"SETTING_PASSWORD\" TEXT);"); // 12: SettingPassword
     }
 
     /** Drops the underlying database table. */
@@ -98,18 +102,28 @@ public class TerminalInformationDao extends AbstractDao<TerminalInformation, Lon
             stmt.bindString(5, ServerIP);
         }
  
+        String DeviceIP = entity.getDeviceIP();
+        if (DeviceIP != null) {
+            stmt.bindString(6, DeviceIP);
+        }
+ 
+        String DevicePost = entity.getDevicePost();
+        if (DevicePost != null) {
+            stmt.bindString(7, DevicePost);
+        }
+ 
         String ServerPost = entity.getServerPost();
         if (ServerPost != null) {
-            stmt.bindString(6, ServerPost);
+            stmt.bindString(8, ServerPost);
         }
-        stmt.bindLong(7, entity.getIsregister() ? 1L: 0L);
-        stmt.bindDouble(8, entity.getRecognitionThreshold());
-        stmt.bindLong(9, entity.getOutTime());
-        stmt.bindLong(10, entity.getRecognitionNum());
+        stmt.bindLong(9, entity.getIsregister() ? 1L: 0L);
+        stmt.bindDouble(10, entity.getRecognitionThreshold());
+        stmt.bindLong(11, entity.getOutTime());
+        stmt.bindLong(12, entity.getRecognitionNum());
  
         String SettingPassword = entity.getSettingPassword();
         if (SettingPassword != null) {
-            stmt.bindString(11, SettingPassword);
+            stmt.bindString(13, SettingPassword);
         }
     }
 
@@ -142,18 +156,28 @@ public class TerminalInformationDao extends AbstractDao<TerminalInformation, Lon
             stmt.bindString(5, ServerIP);
         }
  
+        String DeviceIP = entity.getDeviceIP();
+        if (DeviceIP != null) {
+            stmt.bindString(6, DeviceIP);
+        }
+ 
+        String DevicePost = entity.getDevicePost();
+        if (DevicePost != null) {
+            stmt.bindString(7, DevicePost);
+        }
+ 
         String ServerPost = entity.getServerPost();
         if (ServerPost != null) {
-            stmt.bindString(6, ServerPost);
+            stmt.bindString(8, ServerPost);
         }
-        stmt.bindLong(7, entity.getIsregister() ? 1L: 0L);
-        stmt.bindDouble(8, entity.getRecognitionThreshold());
-        stmt.bindLong(9, entity.getOutTime());
-        stmt.bindLong(10, entity.getRecognitionNum());
+        stmt.bindLong(9, entity.getIsregister() ? 1L: 0L);
+        stmt.bindDouble(10, entity.getRecognitionThreshold());
+        stmt.bindLong(11, entity.getOutTime());
+        stmt.bindLong(12, entity.getRecognitionNum());
  
         String SettingPassword = entity.getSettingPassword();
         if (SettingPassword != null) {
-            stmt.bindString(11, SettingPassword);
+            stmt.bindString(13, SettingPassword);
         }
     }
 
@@ -170,12 +194,14 @@ public class TerminalInformationDao extends AbstractDao<TerminalInformation, Lon
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // TerminalName
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // Serial
             cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // ServerIP
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // ServerPost
-            cursor.getShort(offset + 6) != 0, // isregister
-            cursor.getFloat(offset + 7), // RecognitionThreshold
-            cursor.getLong(offset + 8), // OutTime
-            cursor.getInt(offset + 9), // RecognitionNum
-            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10) // SettingPassword
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // DeviceIP
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // DevicePost
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // ServerPost
+            cursor.getShort(offset + 8) != 0, // isregister
+            cursor.getFloat(offset + 9), // RecognitionThreshold
+            cursor.getLong(offset + 10), // OutTime
+            cursor.getInt(offset + 11), // RecognitionNum
+            cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12) // SettingPassword
         );
         return entity;
     }
@@ -187,12 +213,14 @@ public class TerminalInformationDao extends AbstractDao<TerminalInformation, Lon
         entity.setTerminalName(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
         entity.setSerial(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setServerIP(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setServerPost(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setIsregister(cursor.getShort(offset + 6) != 0);
-        entity.setRecognitionThreshold(cursor.getFloat(offset + 7));
-        entity.setOutTime(cursor.getLong(offset + 8));
-        entity.setRecognitionNum(cursor.getInt(offset + 9));
-        entity.setSettingPassword(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
+        entity.setDeviceIP(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setDevicePost(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setServerPost(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setIsregister(cursor.getShort(offset + 8) != 0);
+        entity.setRecognitionThreshold(cursor.getFloat(offset + 9));
+        entity.setOutTime(cursor.getLong(offset + 10));
+        entity.setRecognitionNum(cursor.getInt(offset + 11));
+        entity.setSettingPassword(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
      }
     
     @Override

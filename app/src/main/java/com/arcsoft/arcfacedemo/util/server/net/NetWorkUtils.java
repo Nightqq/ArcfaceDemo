@@ -6,7 +6,6 @@ import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
-import com.arcsoft.arcfacedemo.activity.App;
 import com.arcsoft.arcfacedemo.util.utils.Utils;
 
 import java.math.BigDecimal;
@@ -90,12 +89,11 @@ public class NetWorkUtils {
     /**
      * 获取当前网络连接类型
      *
-     * @param context
      * @return
      */
-    public static int getNetworkState(Context context) {
+    public static int getNetworkState() {
         //获取系统的网络服务
-        ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connManager = (ConnectivityManager) Utils.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         if (null == connManager) {
             return NETWORN_NONE;
         }

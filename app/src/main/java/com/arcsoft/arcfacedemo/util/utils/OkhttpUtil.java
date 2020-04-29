@@ -97,7 +97,11 @@ public class OkhttpUtil {
         okHttpPost(url, paramsMap, null, callBack);
 
     }
+    public static void okHttpPost(String url, Map<String, String> paramsMap, CallBackUtil callBack,long time) {
 
+        okHttpPost(url, paramsMap, null, callBack,time);
+
+    }
 
     /**
      * post请求，可以传递参数
@@ -113,7 +117,11 @@ public class OkhttpUtil {
         new RequestUtil(METHOD_POST, url, paramsMap, headerMap, callBack).execute();
 
     }
+    public static void okHttpPost(String url, Map<String, String> paramsMap, Map<String, String> headerMap, CallBackUtil callBack,long time) {
 
+        new RequestUtil(METHOD_POST, url, paramsMap, headerMap, callBack,time).execute();
+
+    }
     /**
      * post请求
      *

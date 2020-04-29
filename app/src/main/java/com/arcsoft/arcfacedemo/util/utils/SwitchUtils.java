@@ -1,10 +1,13 @@
 package com.arcsoft.arcfacedemo.util.utils;
 
+import java.io.DataOutputStream;
 import java.util.ArrayList;
 import android.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SwitchUtils {
     private static final String SEP1 = "#";
@@ -154,8 +157,6 @@ public class SwitchUtils {
         }
         return result;
     }
-
-
     //int0~255转byte
     public static byte IntToByte(int num) {
         byte b = (byte) (num & 0xff);
@@ -234,4 +235,56 @@ public class SwitchUtils {
         }
         return true;
     }
+    public static  boolean isIP(String str) {//判断string是否是IP地址
+        // 1、首先检查字符串的长度 最短应该是0.0.0.0 7位 最长 000.000.000.000 15位
+        if (str.length() < 7 || str.length() > 15) return false;
+        // 2、按.符号进行拆分，拆分结果应该是4段，"."、"|"、"^"等特殊字符必须用 \ 来进行转义
+        // 而在java字符串中，\ 也是个已经被使用的特殊符号，也需要使用 \ 来转义
+        String[] arr = str.split("\\.");
+        if (arr.length != 4) return false;
+        // 3、检查每个字符串是不是都是数字,ip地址每一段都是0-255的范围
+        for (int i = 0; i < 4; i++) {
+            if (!isNUM(arr[i]) || arr[i].length() == 0 || Integer.parseInt(arr[i]) > 255 || Integer.parseInt(arr[i]) < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static boolean isNUM(String str) {
+        Pattern p = Pattern.compile("[0-9]*");
+        Matcher m = p.matcher(str);
+        return m.matches();
+    }
+
+    public synchronized boolean getRootAhth() {//判断手机是否root
+        Process process = null;
+        DataOutputStream os = null;
+        try {
+            process = Runtime.getRuntime().exec("su");
+            os = new DataOutputStream(process.getOutputStream());
+            os.writeBytes("exit\n");
+            os.flush();
+            int exitValue = process.waitFor();
+            if (exitValue == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            LogUtils.a("*** DEBUG ***", "Unexpected error - Here is what I know: "
+                    + e.getMessage());
+            return false;
+        } finally {
+            try {
+                if (os != null) {
+                    os.close();
+                }
+                process.destroy();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

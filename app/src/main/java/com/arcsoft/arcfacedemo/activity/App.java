@@ -2,9 +2,8 @@ package com.arcsoft.arcfacedemo.activity;
 
 import android.app.Application;
 
-import com.arcsoft.arcfacedemo.common.IpPort;
 import com.arcsoft.arcfacedemo.dao.helper.DaoUtils;
-import com.arcsoft.arcfacedemo.util.utils.TextToSpeechUtils;
+import com.arcsoft.arcfacedemo.util.server.handler.CrashHandler;
 import com.arcsoft.arcfacedemo.util.utils.Utils;
 
 public class App extends Application{
@@ -17,8 +16,9 @@ public class App extends Application{
     public void onCreate() {
         super.onCreate();
         Utils.init(App.this);
-        IpPort.init(App.this);
+        //IpPort.init(App.this);
         DaoUtils.init(App.this);
+      //  CrashHandler.getInstance().init();
     }
 
 

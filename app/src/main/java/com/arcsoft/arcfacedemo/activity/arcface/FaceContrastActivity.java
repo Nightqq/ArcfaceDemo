@@ -1,18 +1,12 @@
 package com.arcsoft.arcfacedemo.activity.arcface;
 
-import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
@@ -30,21 +24,19 @@ import com.arcsoft.arcfacedemo.net.RequestHelper;
 import com.arcsoft.arcfacedemo.util.communi.SerialPortUtils;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
 import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
-import com.arcsoft.arcfacedemo.util.utils.TextToSpeechUtils;
-import com.arcsoft.arcfacedemo.util.utils.Utils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class FaceContrastActivity extends BaseActivity {
 
-    @BindView(R.id.face_contrast_rotate)
+  /*  @BindView(R.id.face_contrast_rotate)
     ImageView faceContrastRotate;
     private Handler handler = new Handler() {
     };
 
 
-    private TextToSpeechUtils textToSpeechUtils;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +44,6 @@ public class FaceContrastActivity extends BaseActivity {
         setContentView(R.layout.activity_face_contrast);
         ButterKnife.bind(this);
         SerialPortUtils.gethelp().openSerialPort();
-        textToSpeechUtils = new TextToSpeechUtils(Utils.getContext());
     }
 
     boolean jumpFlag=false;
@@ -81,10 +72,10 @@ public class FaceContrastActivity extends BaseActivity {
                             handler.post(runnable);
                         }
                     } else {
-                        textToSpeechUtils.notifyNewMessage("有卡号无人脸数据");
+                        TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("有卡号无人脸数据");
                     }
                 } else {
-                    textToSpeechUtils.notifyNewMessage("本地无此考号联网获取中");
+                    textToSpeechUtils.notifyNewMessage("数据同步中");
                     RequestHelper.getRequestHelper().getPoliceFace(policeNum, new RequestHelper.OpenDownloadListener() {
                         @Override
                         public void openDownload(String message) {
@@ -158,6 +149,6 @@ public class FaceContrastActivity extends BaseActivity {
             }
         });
         dialog.show();
-    }
+    }*/
 
 }

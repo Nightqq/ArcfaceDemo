@@ -1,5 +1,9 @@
 package com.arcsoft.arcfacedemo.net;
 
+import com.arcsoft.arcfacedemo.dao.bean.TerminalInformation;
+import com.arcsoft.arcfacedemo.dao.helper.TerminalInformationHelp;
+import com.arcsoft.arcfacedemo.util.utils.ConfigUtil;
+
 public class UrlConfig {
     private static UrlConfig urlConfig;
     public static UrlConfig getinstance() {
@@ -9,8 +13,21 @@ public class UrlConfig {
         return urlConfig;
     }
 
+
+
     public String getServerIP(){
-        return "192.168.0.10";
+        TerminalInformation terminalInformation = TerminalInformationHelp.getTerminalInformation();
+        String serverIP = terminalInformation.getServerIP();
+        String serverPost = terminalInformation.getServerPost();
+        if (serverIP!=null){
+            if (serverPost!=null&&serverPost.length()>0){
+                return serverIP+":"+serverPost;
+            }else {
+                return serverIP;
+            }
+        }else {
+            return "192.168.0.10";
+        }
     }
 
     public String getPoliceFaceUrl(){//查询人员特征值
@@ -36,4 +53,11 @@ public class UrlConfig {
     public String getFaceDevice(){//获取人像比对机器
         return  "http://"+getServerIP()+"/CALL/api/DictionaryController/getFaceDevice";
     }
+    public String getLastVersion(){//获取最新版本信息
+        return  "http://"+getServerIP()+"/CALL/api/DictionaryController/getLastVersion";
+    }
+    public String downloadApk(){
+        return "http://"+getServerIP()+"/download/"+ ConfigUtil.Apk_name;
+    }
+
 }

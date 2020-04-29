@@ -17,6 +17,7 @@ import com.arcsoft.arcfacedemo.net.RequestHelper;
 import com.arcsoft.arcfacedemo.net.bean.JsonPolicePhoto;
 import com.arcsoft.arcfacedemo.util.image.ImageBase64Utils;
 import com.arcsoft.arcfacedemo.util.server.net.NetWorkUtils;
+import com.arcsoft.arcfacedemo.util.utils.LogUtils;
 import com.arcsoft.arcfacedemo.util.utils.RequestUtil;
 import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
 
