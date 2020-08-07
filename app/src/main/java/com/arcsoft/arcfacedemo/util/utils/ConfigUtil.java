@@ -12,7 +12,7 @@ public class ConfigUtil {
     private static final String First_Start = "FirstStart";
     private static final String Start_self = "startself";
     private static final String Success_Open_Door = "successOpenDoor";
-
+    public static final String MODE = "mode";
     public static final String Apk_name = "查看器.apk";
 
     public static void setTrackId(Context context, int trackId) {
@@ -63,6 +63,17 @@ public class ConfigUtil {
         return sharedPreferences.getBoolean(First_Start, true);
     }
 
+    public static void setMode(int mode) {
+        SharedPreferences sharedPreferences = Utils.getContext().getSharedPreferences(APP_NAME, Context.MODE_PRIVATE);
+        sharedPreferences.edit()
+                .putInt(MODE, mode)
+                .apply();
+    }
+
+    public static int getMode() {
+        SharedPreferences sharedPreferences = Utils.getContext().getSharedPreferences(APP_NAME, Context.MODE_PRIVATE);
+        return sharedPreferences.getInt(MODE,1);
+    }
     public static void setstartself() {
         SharedPreferences sharedPreferences = Utils.getContext().getSharedPreferences(APP_NAME, Context.MODE_PRIVATE);
         sharedPreferences.edit()

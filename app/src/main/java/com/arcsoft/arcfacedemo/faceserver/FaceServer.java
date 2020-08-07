@@ -3,13 +3,23 @@ package com.arcsoft.arcfacedemo.faceserver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.YuvImage;
 import android.util.Log;
 
+import com.arcsoft.arcfacedemo.dao.bean.CeWenInform;
+import com.arcsoft.arcfacedemo.dao.bean.PoliceFace;
+import com.arcsoft.arcfacedemo.dao.helper.CeWenHelp;
+import com.arcsoft.arcfacedemo.dao.helper.PoliceFaceHelp;
 import com.arcsoft.arcfacedemo.model.FaceRegisterInfo;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
+import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
 import com.arcsoft.arcfacedemo.util.utils.Utils;
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
@@ -331,6 +341,61 @@ public class FaceServer {
 
     }
 
+    public boolean getNv21Bitmap(Context context, byte[] nv21, int width, int height, FaceInfo faceInfo, String name) {
+        synchronized (this) {
+            if (faceEngine == null || context == null || nv21 == null || width % 4 != 0 || nv21.length != width * height * 3 / 2) {
+                return false;
+            }
+            if (ROOT_PATH == null) {
+                ROOT_PATH = context.getFilesDir().getAbsolutePath();
+            }
+            boolean dirExists = true;
+            //特征存储的文件夹
+            File featureDir = new File(ROOT_PATH + File.separator + SAVE_FEATURE_DIR);
+            if (!featureDir.exists()) {
+                dirExists = featureDir.mkdirs();
+            }
+            if (!dirExists) {
+                return false;
+            }
+            //图片存储的文件夹
+            File imgDir = new File(ROOT_PATH + File.separator + SAVE_IMG_DIR);
+            if (!imgDir.exists()) {
+                dirExists = imgDir.mkdirs();
+            }
+            if (!dirExists) {
+                return false;
+            }
+            FaceFeature faceFeature = new FaceFeature();
+            //特征提取
+            int code = faceEngine.extractFaceFeature(nv21, width, height, FaceEngine.CP_PAF_NV21, faceInfo, faceFeature);
+            String userName = name == null ? String.valueOf(System.currentTimeMillis()) : name;
+            try {
+                //保存注册结果（注册图、特征数据）
+                if (code == ErrorInfo.MOK) {
+                    YuvImage yuvImage = new YuvImage(nv21, ImageFormat.NV21, width, height, null);
+                    //为了美观，扩大rect截取注册图
+                    Rect cropRect = getBestRect(width, height, faceInfo.getRect());
+                    if (cropRect == null) {
+                        return false;
+                    }
+                    File file = new File(imgDir + File.separator + userName + IMG_SUFFIX);
+                    FileOutputStream fosImage = new FileOutputStream(file);
+                    yuvImage.compressToJpeg(cropRect, 100, fosImage);
+                    fosImage.close();
+                    Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                    return true;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return false;
+        }
+
+    }
+
+
     /**
      * 用于注册照片人脸
      *
@@ -450,6 +515,40 @@ public class FaceServer {
 
     }
 
+    //获取人脸头像，截取照片
+    public Bitmap getFaceRect(Bitmap bitmap){
+        byte[] bgr24 = ImageUtils.bitmapToBgr24(bitmap);
+        List<FaceInfo> faceInfoList = new ArrayList<>();
+        int code = faceEngine.detectFaces(bgr24, bitmap.getWidth(), bitmap.getHeight(), FaceEngine.CP_PAF_BGR24, faceInfoList);
+        if (code == ErrorInfo.MOK && faceInfoList.size() > 0) {
+            Rect rect = faceInfoList.get(0).getRect();
+            rect.set(rect.left, (int) (rect.top*0.91),rect.right, (int) (rect.bottom*1.09));
+            bitmap = getCropBitmapByCPU(bitmap, rect);
+            Matrix matrix = new Matrix();
+            matrix.setScale(0.5f, 0.5f);
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            return bitmap;
+        }else {
+            return null;
+        }
+    }
+    private static Bitmap getCropBitmapByCPU(Bitmap source, Rect cropRectF) {
+        Bitmap resultBitmap = Bitmap.createBitmap((int) cropRectF.width(),
+                (int) cropRectF.height(), Bitmap.Config.ARGB_8888);
+        Canvas cavas = new Canvas(resultBitmap);
+        Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG);
+        paint.setColor(Color.WHITE);
+        cavas.drawRect(
+                new RectF(0, 0, cropRectF.width(), cropRectF.height()),
+                paint);
+        Matrix matrix = new Matrix();
+        matrix.postTranslate(-cropRectF.left, -cropRectF.top);
+        cavas.drawBitmap(source, matrix, paint);
+        if (source != null && !source.isRecycled()) {
+            source.recycle();
+        }
+        return resultBitmap;
+    }
     /**
      * 在特征库中搜索
      *
@@ -479,28 +578,60 @@ public class FaceServer {
         }
         return null;
     }
-    //人脸比较
 
-    public CompareResult getSimilar(FaceFeature policeFace,FaceFeature tempFaceFeature,String name) {
-        if (faceEngine == null || policeFace == null||tempFaceFeature==null) {
-            if (faceEngine == null){
+    //人脸比较
+    public CompareResult getSimilar(FaceFeature policeFace, FaceFeature tempFaceFeature, String name) {
+        if (faceEngine == null || policeFace == null || tempFaceFeature == null) {
+            if (faceEngine == null) {
                 LogUtils.a("人脸相似度：faceEngine null");
             }
-            if (policeFace == null){
+            if (policeFace == null) {
                 LogUtils.a("人脸相似度：policeFace null");
             }
-            if (tempFaceFeature == null){
+            if (tempFaceFeature == null) {
                 LogUtils.a("人脸相似度：tempFaceFeature null");
             }
-
             return null;
         }
         FaceSimilar faceSimilar = new FaceSimilar();
         float maxSimilar = 0;
         faceEngine.compareFaceFeature(policeFace, tempFaceFeature, faceSimilar);
         maxSimilar = faceSimilar.getScore();
-        LogUtils.a("人脸相似度："+maxSimilar);
+        //LogUtils.a("人脸相似度："+maxSimilar);
         return new CompareResult(name, maxSimilar);
+    }
+
+    //根据人脸特征从数据库中搜索
+    public CompareResult getSimilar(FaceFeature policeFace) {
+        if (faceEngine == null || policeFace == null) {
+            if (faceEngine == null) {
+                LogUtils.a("人脸相似度：faceEngine null");
+            }
+            if (policeFace == null) {
+                LogUtils.a("人脸相似度：policeFace null");
+            }
+            return null;
+        }
+        FaceFeature tempFaceFeature = new FaceFeature();
+        FaceSimilar faceSimilar = new FaceSimilar();
+        float maxSimilar = 0;
+        int maxSimilarIndex = -1;
+        List<PoliceFace> policeFaceAllListFromDB = PoliceFaceHelp.getPoliceFaceAllListFromDB();
+        isProcessing = true;
+        for (int i = 0; i < policeFaceAllListFromDB.size(); i++) {
+            tempFaceFeature.setFeatureData(SwitchUtils.base64tobyte(policeFaceAllListFromDB.get(i).getEMP_FEATURE()));
+            faceEngine.compareFaceFeature(policeFace, tempFaceFeature, faceSimilar);
+            if (faceSimilar.getScore() > maxSimilar) {
+                maxSimilar = faceSimilar.getScore();
+                maxSimilarIndex = i;
+            }
+        }
+        isProcessing = false;
+        CeWenInform ceWenInform = CeWenHelp.getCeWenInform();
+        ceWenInform.setEmp_id(policeFaceAllListFromDB.get(maxSimilarIndex).getEMP_ID());
+        ceWenInform.setName(policeFaceAllListFromDB.get(maxSimilarIndex).getEMP_NAME());
+        CeWenHelp.saveCeWenInform(ceWenInform);
+        return new CompareResult(policeFaceAllListFromDB.get(maxSimilarIndex).getEMP_NAME(), maxSimilar);
     }
 
 

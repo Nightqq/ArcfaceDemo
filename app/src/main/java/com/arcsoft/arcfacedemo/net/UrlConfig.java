@@ -60,4 +60,11 @@ public class UrlConfig {
         return "http://"+getServerIP()+"/download/"+ ConfigUtil.Apk_name;
     }
 
+    public String requestADong(){
+        return "http://"+getServerIP()+"/CallRoll";
+    }
+
+    public String updateCriminalTemperature(){//上传温度
+        return "http://192.168.0.89:8001";
+    }
 }

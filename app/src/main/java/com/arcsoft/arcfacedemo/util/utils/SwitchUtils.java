@@ -3,6 +3,9 @@ package com.arcsoft.arcfacedemo.util.utils;
 import java.io.DataOutputStream;
 import java.util.ArrayList;
 import android.util.Base64;
+
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -162,7 +165,11 @@ public class SwitchUtils {
         byte b = (byte) (num & 0xff);
         return b;
     }
-
+    //byte转int0~255
+    public static int ByteToInt(byte num) {
+        int b = (int) (num & 0xff);
+        return b;
+    }
     private static int toByte(char c) {
         byte b = (byte) "0123456789ABCDEF".indexOf(c);
         return b;
@@ -182,7 +189,7 @@ public class SwitchUtils {
     }
 
     //单个元素转换为字符串
-    public static String byte2HexStr1(byte b) {
+    public static String byte2HexStr(byte b) {
         String stmp = Integer.toHexString(b & 0xFF);
         return stmp.toUpperCase().trim();
     }
@@ -286,5 +293,33 @@ public class SwitchUtils {
             }
         }
     }
-
+    /**
+     * 获取时间差
+     */
+    public static Long getSecondsNextEarlyMorning(int h, int m, int s) {
+        Calendar caleEnd = Calendar.getInstance();
+        caleEnd.set(caleEnd.get(Calendar.YEAR), caleEnd.get(Calendar.MONTH), caleEnd.get(Calendar.DAY_OF_MONTH), h, m, s);
+        Date dateEnd = caleEnd.getTime();
+        long timeEnd = dateEnd.getTime();
+        long l = System.currentTimeMillis();
+        if (timeEnd - l >= 0) {
+            return timeEnd;
+        } else {
+            caleEnd.add(Calendar.DATE, 1);
+            return caleEnd.getTime().getTime();
+        }
+      /*  Calendar cal = Calendar.getInstance();
+        if (cal.get(Calendar.HOUR_OF_DAY) - num >= 0) {
+            //如果当前时间大于等于8点 就计算第二天的8点的
+            cal.add(Calendar.DAY_OF_YEAR, 1);
+        } else {
+            cal.add(Calendar.DAY_OF_YEAR, 0);
+        }
+        cal.set(Calendar.HOUR_OF_DAY, num);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Long seconds = (cal.getTimeInMillis() - System.currentTimeMillis());
+        return seconds.longValue();*/
+    }
 }

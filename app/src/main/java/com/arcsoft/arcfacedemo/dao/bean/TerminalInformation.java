@@ -2,6 +2,7 @@ package com.arcsoft.arcfacedemo.dao.bean;
 
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.arcsoft.arcfacedemo.util.server.net.NetWorkUtils;
 import com.arcsoft.arcfacedemo.util.utils.DeviceUtils;
 
 import org.greenrobot.greendao.annotation.Entity;
@@ -26,7 +27,7 @@ public class TerminalInformation {
     //服务器IP地址
     private String ServerIP = "192.168.0.10";
     //本地ip
-    private String DeviceIP = "192.168.0.129";
+    private String DeviceIP = NetWorkUtils.getIP();
     //本地端口
     private String DevicePost = "3639";
     //服务器端口

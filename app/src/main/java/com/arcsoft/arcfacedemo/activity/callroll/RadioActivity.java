@@ -1,4 +1,4 @@
-package com.arcsoft.arcfacedemo.activity;
+package com.arcsoft.arcfacedemo.activity.callroll;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -7,11 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.arcsoft.arcfacedemo.R;
-import com.arcsoft.arcfacedemo.faceserver.SignalingClient;
+
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
 import com.arcsoft.arcfacedemo.widget.PeerConnectionAdapter;
 import com.arcsoft.arcfacedemo.widget.SdpAdapter;
-
+import com.arcsoft.arcfacedemo.faceserver.RadioClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.webrtc.AudioSource;
@@ -37,7 +37,8 @@ import org.webrtc.VideoTrack;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WebRTCActivity extends AppCompatActivity implements SignalingClient.Callback {
+
+public class RadioActivity extends AppCompatActivity implements RadioClient.Callback {
 
     private String TAG = "WebRTCActivity";
     private MediaStream mediaStreamRemote;
@@ -128,7 +129,7 @@ public class WebRTCActivity extends AppCompatActivity implements SignalingClient
         mediaStreamRemote.addTrack(videoTrack);
         mediaStreamRemote.addTrack(audioTrack);
 
-        SignalingClient.get().setCallback(this);
+        RadioClient.get().setCallback(this);
 
         call();
 
@@ -136,7 +137,7 @@ public class WebRTCActivity extends AppCompatActivity implements SignalingClient
 
     public void jumpTojion(View view) {
 
-        SignalingClient.get().call();
+        RadioClient.get().call();
     }
 
     private void call() {
@@ -147,7 +148,7 @@ public class WebRTCActivity extends AppCompatActivity implements SignalingClient
             public void onIceCandidate(IceCandidate iceCandidate) {
                 super.onIceCandidate(iceCandidate);
                 LogUtils.a("onIceCandidatexxxxxxx");
-                SignalingClient.get().sendIceCandidate(iceCandidate);
+                RadioClient.get().sendIceCandidate(iceCandidate);
             }
 
             @Override
@@ -217,7 +218,7 @@ public class WebRTCActivity extends AppCompatActivity implements SignalingClient
                 LogUtils.a("sdp" + "onCreateSuccess");
                 super.onCreateSuccess(sessionDescription);
                 peerConnectionLocal.setLocalDescription(new SdpAdapter("local set local"), sessionDescription);
-                SignalingClient.get().sendOfferSDP(sessionDescription);
+                RadioClient.get().sendOfferSDP(sessionDescription);
             }
 
             @Override
@@ -249,7 +250,7 @@ public class WebRTCActivity extends AppCompatActivity implements SignalingClient
                     super.onCreateSuccess(sdp);
                     LogUtils.a("sdp" + "onCreateSuccess");
                     peerConnectionLocal.setLocalDescription(new SdpAdapter("localSetLocal"), sdp);
-                    SignalingClient.get().sendSessionDescription(sdp);
+                    RadioClient.get().sendSessionDescription(sdp);
                 }
                 @Override
                 public void onCreateFailure(String s) {
@@ -288,7 +289,7 @@ public class WebRTCActivity extends AppCompatActivity implements SignalingClient
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        SignalingClient.get().destroy();
+        RadioClient.get().destroy();
     }
 
 }

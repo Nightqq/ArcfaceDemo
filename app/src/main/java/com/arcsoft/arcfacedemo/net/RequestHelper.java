@@ -6,12 +6,17 @@ import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Base64;
+import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.arcsoft.arcfacedemo.activity.App;
+import com.arcsoft.arcfacedemo.dao.bean.CeWenInform;
 import com.arcsoft.arcfacedemo.dao.bean.PoliceFace;
+import com.arcsoft.arcfacedemo.dao.bean.PrisonerFace;
 import com.arcsoft.arcfacedemo.dao.bean.TerminalInformation;
+import com.arcsoft.arcfacedemo.dao.helper.CeWenHelp;
 import com.arcsoft.arcfacedemo.dao.helper.PoliceFaceHelp;
+import com.arcsoft.arcfacedemo.dao.helper.PrisonerFaceHelp;
 import com.arcsoft.arcfacedemo.dao.helper.TerminalInformationHelp;
 import com.arcsoft.arcfacedemo.net.bean.JsonGetFaceDevice;
 import com.arcsoft.arcfacedemo.net.bean.JsonPoliceFace;
@@ -30,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -169,13 +175,85 @@ public class RequestHelper {
         });
     }
 
+    //点名结束返回
+    public void uploadPrisonerCallRoll() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("code", "002");
+        params.put("ip",NetWorkUtils.getIP());
+        List list = new ArrayList();
+        List<PrisonerFace> prisonerFaceListFromDB = PrisonerFaceHelp.getPrisonerFaceListFromDB();
+        for (PrisonerFace prisonerFace : prisonerFaceListFromDB) {
+            Map<String, Object> stringMap = new HashMap<>();
+            stringMap.put("emp_name",prisonerFace.getEmp_name());
+            stringMap.put("emp_id",prisonerFace.getEmp_id());
+            stringMap.put("call_roll_ result",prisonerFace.getCall_roll_result());
+            stringMap.put("photo",prisonerFace.getPhoto());
+            list.add(stringMap);
+        }
+        params.put("data",list);
+       // LogUtils.a(JSON.toJSONString(params));
+        OkhttpUtil.okHttpPostJson(UrlConfig.getinstance().requestADong(), JSON.toJSONString(params), new CallBackUtil() {
+            @Override
+            public Object onParseResponse(Call call, Response response) {
+                try {
+                    LogUtils.a("点名结束返回" + response.body().string());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            public void onFailure(Call call, Exception e) {
+                LogUtils.a("点名结束返回onFailure" + e.getMessage().toString());
+            }
+
+            @Override
+            public void onResponse(Object response) {
+
+            }
+        });
+    }
+
+    //报警
+    public void callPolice() {
+        Map<String, String> params = new HashMap<>();
+        params.put("code", "003");
+        params.put("ip",NetWorkUtils.getIP());
+
+        params.put("msg","紧急报警");
+        // LogUtils.a(JSON.toJSONString(params));
+        OkhttpUtil.okHttpPost(UrlConfig.getinstance().requestADong(), params, new CallBackUtil() {
+            @Override
+            public Object onParseResponse(Call call, Response response) {
+                try {
+                    LogUtils.a("报警返回" + response.body().string());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            public void onFailure(Call call, Exception e) {
+                LogUtils.a("报警返回onFailure" + e.getMessage().toString());
+            }
+
+            @Override
+            public void onResponse(Object response) {
+
+            }
+        });
+    }
+
     public void uploadPolicephoto(JsonPolicePhoto jsonPolicePhoto) {
         Map<String, String> params = new HashMap<>();
         params.put("emp_id", jsonPolicePhoto.getEmp_id());
-        params.put("dev_ip", jsonPolicePhoto.getDev_ip());
+        params.put("dev_ip",NetWorkUtils.getIP());
         params.put("compare_time", jsonPolicePhoto.getCompare_time());
         params.put("emp_photo", jsonPolicePhoto.getEmp_photo());
         params.put("compare_type", jsonPolicePhoto.getCompare_type());
+        LogUtils.a("上传照片",params.toString());
         OkhttpUtil.okHttpPost(UrlConfig.getinstance().uploauploadPolicephotoUrl(), params, new CallBackUtil() {
             @Override
             public Object onParseResponse(Call call, Response response) {
@@ -189,7 +267,43 @@ public class RequestHelper {
 
             @Override
             public void onFailure(Call call, Exception e) {
+                LogUtils.a("上传照片返回onFailure" + e.getMessage().toString());
+            }
 
+            @Override
+            public void onResponse(Object response) {
+
+            }
+        });
+    }
+
+    public void uploadWenDu(){
+        Map<String, String> params = new HashMap<>();
+        CeWenInform ceWenInform = CeWenHelp.getCeWenInform();
+        params.put("code", "006");
+        params.put("ip",NetWorkUtils.getIP());
+        params.put("name", ceWenInform.getName());
+        params.put("emp_id", ceWenInform.getEmp_id());
+        params.put("temperature", ceWenInform.getTemperature());
+        params.put("photo", ceWenInform.getPhoto());
+        LogUtils.a("人脸大小：",ceWenInform.getPhoto().length());
+        params.put("state", ceWenInform.getState());
+        params.put("time", ceWenInform.getTime());
+        OkhttpUtil.okHttpPost(UrlConfig.getinstance().updateCriminalTemperature(), params, new CallBackUtil() {
+            @Override
+            public Object onParseResponse(Call call, Response response) {
+                try {
+                    LogUtils.a("上传温度返回" + response.body().string());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            public void onFailure(Call call, Exception e) {
+                LogUtils.a("上传温度返回onFailure" + e.getMessage().toString());
+                //失败存本地
             }
 
             @Override
@@ -240,7 +354,6 @@ public class RequestHelper {
             }
         });
     }
-
     public void getdevice() {
         OkhttpUtil.okHttpPost(UrlConfig.getinstance().getFaceDevice(), new CallBackUtil() {
             @Override
@@ -276,7 +389,6 @@ public class RequestHelper {
             }
         });
     }
-
     public void updateFaceDevice(TerminalInformation terminalInformation, OpenDownloadListener openDownloadListener) {
         Map<String, String> params = new HashMap<>();
         params.put("dev_code", terminalInformation.getTerminalNum());
@@ -318,7 +430,6 @@ public class RequestHelper {
             }
         });
     }
-
     public void getLastVersion() {
         OkhttpUtil.okHttpPost(UrlConfig.getinstance().getLastVersion(), new CallBackUtil() {
             @Override
@@ -342,10 +453,6 @@ public class RequestHelper {
 
             }
         });
-    }
-
-    public void downloadApk() {
-        String ROOT_PATH = Utils.getContext().getFilesDir().getAbsolutePath();
     }
 
 

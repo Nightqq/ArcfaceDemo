@@ -1,17 +1,23 @@
 package com.arcsoft.arcfacedemo.util.utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.arcsoft.arcfacedemo.activity.arcface.FaceRecognitionActivity;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -23,6 +29,8 @@ public class FileUtils {
     private String Log_path = FILE_PATH + File.separator + "相似度";
     private String serialport_path = FILE_PATH + File.separator + "串口语音";
     private String abnormal_path = FILE_PATH + File.separator + "异常捕捉";
+    private String img_path = FILE_PATH + File.separator + "图片";
+    private String temperature_path = FILE_PATH + File.separator + "温度";
     private FileUtils() {
     }
 
@@ -44,7 +52,11 @@ public class FileUtils {
         File fileDir = new File(serialport_path);
         savefile(data, fileDir);
     }
-
+    //保存温度日志
+    public void savatemperatureLog(String data) {
+        File fileDir = new File(temperature_path);
+        savefile(data, fileDir);
+    }
     //保存异常日志
     public void savaabnormalLog(String data) {
         File fileDir = new File(abnormal_path);
@@ -74,6 +86,32 @@ public class FileUtils {
             //LogUtils.a("结束写文件时间");
         } catch (Exception e) {
             LogUtils.a("结束写文件时间" + e.getMessage().toString());
+            e.printStackTrace();
+        }
+    }
+    public void saveMyBitmap( Bitmap bitmap) {
+        File fileDir = new File(img_path);
+        if (!fileDir.exists() || !fileDir.getParentFile().exists()) {
+            boolean mkdirs = fileDir.getParentFile().mkdirs();
+            LogUtils.a(mkdirs);
+            if (!fileDir.exists()) {
+                boolean mkdirs1 = fileDir.mkdirs();
+                LogUtils.a(mkdirs1);
+            }
+        }
+        String fileName = System.currentTimeMillis() + ".jpg";
+        fileDir = new File(fileDir, fileName);
+
+        try {
+            FileOutputStream fos = new FileOutputStream(fileDir);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (FileNotFoundException e) {
+            LogUtils.a("图片",e.getMessage().toString());
+            e.printStackTrace();
+        } catch (IOException e) {
+            LogUtils.a("图片",e.getMessage().toString());
             e.printStackTrace();
         }
     }

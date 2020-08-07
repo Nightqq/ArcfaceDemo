@@ -7,6 +7,7 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.hardware.Camera;
 
+import com.arcsoft.arcfacedemo.activity.thermometry.ThermometryActivity;
 import com.arcsoft.arcfacedemo.model.DrawInfo;
 import com.arcsoft.arcfacedemo.widget.FaceRectView;
 import com.arcsoft.face.AgeInfo;
@@ -60,6 +61,7 @@ public class DrawHelper {
         }
         faceRectView.addFaceInfo(drawInfoList);
     }
+
 
     /**
      * 调整人脸框用来绘制
@@ -171,6 +173,7 @@ public class DrawHelper {
         return newRect;
     }
 
+    private static boolean halve=true;
     /**
      * 绘制数据信息到view上，若 {@link DrawInfo#name} 不为null则绘制 {@link DrawInfo#name}
      *
@@ -196,6 +199,16 @@ public class DrawHelper {
         Path mPath = new Path();
         //左上
         Rect rect = drawInfo.getRect();
+        //x(0-600),Y(0-750)
+        LogUtils.a("人脸框坐标："+rect.centerX()+","+rect.centerY()+"  脸高："+rect.height());
+        if (halve){
+            if (rect.centerY()>450||rect.centerX()<200||rect.centerX()>500){
+                ThermometryActivity.setRectXY(false);
+            }else {
+                ThermometryActivity.setRectXY(true);
+            }
+        }
+        halve=!halve;
         mPath.moveTo(rect.left, rect.top + rect.height() / 4);
         mPath.lineTo(rect.left, rect.top);
         mPath.lineTo(rect.left + rect.width() / 4, rect.top);
@@ -212,8 +225,6 @@ public class DrawHelper {
         mPath.lineTo(rect.left, rect.bottom);
         mPath.lineTo(rect.left, rect.bottom - rect.height() / 4);
         canvas.drawPath(mPath, paint);
-
-
         if (drawInfo.getName() == null) {
             paint.setStyle(Paint.Style.FILL_AND_STROKE);
             paint.setTextSize(rect.width() / 8);
@@ -224,6 +235,8 @@ public class DrawHelper {
                     + ","
                     + (drawInfo.getLiveness() == LivenessInfo.ALIVE ? "ALIVE" : (drawInfo.getLiveness() == LivenessInfo.NOT_ALIVE ? "NOT_ALIVE" : "UNKNOWN"));
             canvas.drawText(str, rect.left, rect.top - 10, paint);
+
+
         } else {
             paint.setStyle(Paint.Style.FILL_AND_STROKE);
             paint.setTextSize(rect.width() / 8);

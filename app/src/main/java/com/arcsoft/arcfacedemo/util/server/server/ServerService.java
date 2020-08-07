@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.text.TextUtils;
 
+import com.arcsoft.arcfacedemo.util.server.handler.CallRollHandler;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
 import com.arcsoft.arcfacedemo.util.server.handler.ConnectHandler;
 import com.arcsoft.arcfacedemo.util.server.handler.PersonAddHandler;
@@ -21,7 +22,7 @@ import static android.support.constraint.Constraints.TAG;
 public class ServerService extends Service {
     public String ip = "192.168.1.2";
     public static int port = 3639;
-    public static String connect_post = "/equipment/connect";
+    public static String Call_roll_post = "Call/Roll";
     public static String person_add_post = "/person/add";
 
     //更新干警数据
@@ -36,8 +37,8 @@ public class ServerService extends Service {
                 .inetAddress(NetWorkUtils.getLocalIPAddress())  //服务器要监听的网络地址
                 .port(port) //服务器要监听的端口
                 .timeout(10, TimeUnit.SECONDS) //Socket超时时间
-                .registerHandler(connect_post, new ConnectHandler()) //注册一个Post 设备连接接口
-                .registerHandler(person_add_post, new PersonAddHandler()) //注册一个人员添加接口
+                .registerHandler(Call_roll_post, new CallRollHandler()) //注册点名接口
+                //.registerHandler(person_add_post, new PersonAddHandler()) //注册一个人员添加接口
                 .filter(new HttpCacheFilter()) //开启缓存支持
                 .listener(new Server.ServerListener() {  //服务器监听接口
                     @Override

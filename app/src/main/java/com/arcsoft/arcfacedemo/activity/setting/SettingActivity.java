@@ -26,8 +26,10 @@ import android.widget.Toast;
 import com.arcsoft.arcfacedemo.R;
 import com.arcsoft.arcfacedemo.activity.BaseActivity;
 import com.arcsoft.arcfacedemo.activity.TestActivity;
+import com.arcsoft.arcfacedemo.dao.bean.TemperatureSetting;
 import com.arcsoft.arcfacedemo.dao.bean.TerminalInformation;
 import com.arcsoft.arcfacedemo.dao.helper.PoliceFaceHelp;
+import com.arcsoft.arcfacedemo.dao.helper.TemperatureSettingHelp;
 import com.arcsoft.arcfacedemo.dao.helper.TerminalInformationHelp;
 import com.arcsoft.arcfacedemo.net.RequestHelper;
 import com.arcsoft.arcfacedemo.net.UrlConfig;
@@ -309,6 +311,61 @@ public class SettingActivity extends BaseActivity {
         dialog.show();
     }
 
+    public void jumpTowendusetting(View mview) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog dialog = builder.create();
+        View view = View.inflate(this, R.layout.dialog_wendu_setting, null);
+        dialog.setView(view, 0, 0, 0, 0);
+
+        TemperatureSetting temperatureSetting = TemperatureSettingHelp.getTerminalInformation();
+        EditText edt3035 = (EditText) view.findViewById(R.id.dialog_3035);
+        LogUtils.a("温度"+temperatureSetting.getWen3035());
+        edt3035.setText(temperatureSetting.getWen3035());
+        EditText edt3540 = (EditText) view.findViewById(R.id.dialog_3540);
+        edt3540.setText(temperatureSetting.getWen3540());
+        EditText edt40 = (EditText) view.findViewById(R.id.dialog_40);
+        edt40.setText(temperatureSetting.getWen40());
+        EditText edtxiaxian = (EditText) view.findViewById(R.id.dialog_xiaxian);
+        edtxiaxian.setText(temperatureSetting.getWenxia());
+        EditText edtshangxian = (EditText) view.findViewById(R.id.dialog_shangxian);
+        edtshangxian.setText(temperatureSetting.getWenshang());
+        Button edtDeviceconfirm = (Button) view.findViewById(R.id.dialog_device_confirm);
+        Button edtDevicecancel = (Button) view.findViewById(R.id.dialog_device_cancel);
+        dialog.setCanceledOnTouchOutside(true);
+        edtDeviceconfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!edt3035.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
+                    TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("第一行格式错误");
+                } else if (!edt3540.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
+                    TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("第二行格式错误");
+                } else if (!edt40.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
+                    TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("第三行格式错误");
+                } else if (!edtxiaxian.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
+                    TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("第四行格式错误");
+                } else if (!edtshangxian.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
+                    TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("第五行格式错误");
+                }else {
+                    temperatureSetting.setWen3035(edt3035.getText().toString());
+                    temperatureSetting.setWen3540(edt3540.getText().toString());
+                    temperatureSetting.setWen40(edt40.getText().toString());
+                    temperatureSetting.setWenxia(edtxiaxian.getText().toString());
+                    temperatureSetting.setWenshang(edtshangxian.getText().toString());
+                    TemperatureSettingHelp.savePoliceInfoToDB(temperatureSetting);
+                    TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("修改成功");
+                    dialog.dismiss();
+                }
+            }
+        });
+        edtDevicecancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
 
     public void jumpTotest(View view) {
         startActivity(TestActivity.class);
@@ -419,7 +476,6 @@ public class SettingActivity extends BaseActivity {
         };
         registerReceiver(broadcastReceiver, intentFilter);
     }
-
 
 
 }

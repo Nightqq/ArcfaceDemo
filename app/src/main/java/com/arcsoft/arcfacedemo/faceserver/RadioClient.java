@@ -1,14 +1,13 @@
 package com.arcsoft.arcfacedemo.faceserver;
 
-import android.content.SharedPreferences;
-
+import com.arcsoft.arcfacedemo.util.server.net.NetWorkUtils;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
-import com.arcsoft.arcfacedemo.util.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.webrtc.IceCandidate;
 import org.webrtc.SessionDescription;
+
 
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -25,26 +24,19 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
-/**
- * Created by chao on 2019/1/30.
- */
+public class RadioClient {
 
-public class SignalingClient {
+    private static RadioClient instance;
 
-    private static SignalingClient instance;
-
-    private SignalingClient() {
+    private RadioClient() {
         init();
     }
-
-    public static SignalingClient get() {
+    public static String ip="https://192.168.0.10:3221/#/many";
+    public static RadioClient get() {
         if (instance == null) {
             synchronized (SignalingClient.class) {
                 if (instance == null) {
-                    instance = new SignalingClient();
-                   SharedPreferences arcface = Utils.getContext().getSharedPreferences("Arcface", 0);
-                   ip = arcface.getString("ip", SignalingClient.ip);
-                   distal=arcface.getString("name",SignalingClient.distal);
+                    instance = new RadioClient();
                 }
             }
         }
@@ -53,7 +45,8 @@ public class SignalingClient {
 
     private Socket socket;
     private String roomid = "webrtc_1v1";
-    private String account = "111";
+    private String account = NetWorkUtils.getIP();
+    private String server_account="admin-";
     private Callback callback;
 
     private final TrustManager[] trustAll = new TrustManager[]{
@@ -83,8 +76,7 @@ public class SignalingClient {
     String USER_JOIN = "join";
     String USER_CALL = "apply";
     String USER_REPLY = "reply";
-    public static String distal = "pc105";
-    public static String ip="https://192.168.0.10:3221/#/remote1";
+
     private void init() {
         try {
             SSLContext sslContext = SSLContext.getInstance("TLS");
@@ -99,15 +91,15 @@ public class SignalingClient {
                     JSONObject obj = new JSONObject();
                     try {
                         obj.put("roomid", roomid);
-                        obj.put("account", account);
-                        //LogUtils.a("join" + obj);
+                        obj.put("account", server_account+account);
+                        LogUtils.a("join" + obj);
                         socket.emit(USER_JOIN, obj);//用户注册
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
             };
-            socket.on(Socket.EVENT_CONNECT, connectListener);
+            socket.on(io.socket.client.Socket.EVENT_CONNECT, connectListener);
             socket.connect();
             replyParse();
         } catch (NoSuchAlgorithmException e) {
@@ -123,7 +115,6 @@ public class SignalingClient {
         socket.on("apply", args -> {//收到通话请求
             LogUtils.a("收到apply " + Arrays.toString(args));
             Object arg = args[0];
-
             if (arg instanceof String) {
 
             } else if (arg instanceof JSONObject) {
@@ -146,8 +137,8 @@ public class SignalingClient {
             //添加判断是否同意
             callback.onSelfJoined();
         });
-        socket.on("1v1offer", args -> {
-            LogUtils.a("1v1offer " + Arrays.toString(args));
+        socket.on("offer", args -> {
+            LogUtils.a("offer " + Arrays.toString(args));
             Object arg = args[0];
             if (arg instanceof JSONObject) {
                 JSONObject data = (JSONObject) arg;
@@ -159,12 +150,13 @@ public class SignalingClient {
             LogUtils.a("1v1hangup " + Arrays.toString(args));
             callback.onPeerLeave("over");
         });
-        socket.on("1v1ICE", args -> {
-           // LogUtils.a("1v1ICE " + Arrays.toString(args));
+        socket.on("__ice_candidate", args -> {
+            // LogUtils.a("__ice_candidate " + Arrays.toString(args));
             Object arg = args[0];
             if (arg instanceof JSONObject) {
                 JSONObject data = (JSONObject) arg;
-                JSONObject sdp = (JSONObject) data.opt("sdp");
+                LogUtils.a("__ice_candidate",args);
+                JSONObject sdp = (JSONObject) data.opt("candidate");
                 callback.onIceCandidateReceived(sdp);
             }
         });
@@ -179,7 +171,8 @@ public class SignalingClient {
         });
     }
     public void call() {//呼叫连接
-        JSONObject obj = new JSONObject();
+        callback.onSelfJoined();
+      /*  JSONObject obj = new JSONObject();
         try {
             obj.put("account", distal);
             obj.put("self", account);
@@ -187,7 +180,7 @@ public class SignalingClient {
             socket.emit(USER_CALL, obj);
         } catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     String type = "offer";
@@ -196,17 +189,16 @@ public class SignalingClient {
 
 
     public void sendIceCandidate(IceCandidate miceCandidate) {
-
         JSONObject jo = new JSONObject();
         try {
-            jo.put("account", distal);
-            jo.put("self", account);
+            jo.put("roomid", roomid);
+            jo.put("account", server_account+account);
             JSONObject obj = new JSONObject();
             obj.put("candidate", miceCandidate.sdp);
             obj.put("sdpMid", miceCandidate.sdpMid);
             obj.put("sdpMLineIndex", miceCandidate.sdpMLineIndex);
-            jo.put("sdp", obj);
-            socket.emit("1v1ICE", jo);
+            jo.put("candidate", obj);
+            socket.emit("__ice_candidate", jo);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -214,8 +206,8 @@ public class SignalingClient {
     public void sendSessionDescription(SessionDescription mSdp) {
         JSONObject jo = new JSONObject();
         try {
-            jo.put("account", distal);
-            jo.put("self", account);
+            jo.put("account", server_account+account);
+            jo.put("roomid", roomid);
             JSONObject obj = new JSONObject();
             obj.put("type", type2);
             obj.put("sdp", mSdp.description);
@@ -229,19 +221,19 @@ public class SignalingClient {
     public void sendOfferSDP(SessionDescription mSdp) {
         JSONObject jo = new JSONObject();
         try {
-            jo.put("account", distal);
-            jo.put("self", account);
+            jo.put("roomid", roomid);
+            jo.put("account", server_account+account);
             JSONObject obj = new JSONObject();
             obj.put("type", type);
             obj.put("sdp", mSdp.description);
             jo.put("sdp", obj);
-            socket.emit("1v1offer", jo);
+            socket.emit("offer", jo);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
     public void destroy() {
-        JSONObject jo = new JSONObject();
+       /* JSONObject jo = new JSONObject();
         try {
             jo.put("account", distal);
             jo.put("self", account);
@@ -251,8 +243,7 @@ public class SignalingClient {
             instance = null;
         } catch (JSONException e) {
             e.printStackTrace();
-        }
-
+        }*/
     }
 
 
@@ -272,5 +263,4 @@ public class SignalingClient {
 
         void onIceCandidateReceived(JSONObject data);
     }
-
 }

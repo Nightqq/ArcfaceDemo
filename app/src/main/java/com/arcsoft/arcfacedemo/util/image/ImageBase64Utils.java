@@ -14,7 +14,7 @@ public class ImageBase64Utils {
     public static String getBitmapByte(Bitmap bitmap) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         LogUtils.a("图片尺寸" + bitmap.getWidth(), bitmap.getHeight());
-        bitmap.compress(Bitmap.CompressFormat.WEBP, 100, out);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
         try {
             out.flush();
             out.close();

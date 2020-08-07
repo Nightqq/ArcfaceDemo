@@ -104,6 +104,12 @@ public class TestActivity extends AppCompatActivity implements OnServerChangeLis
                 LogUtils.a(buffer.length);
                 handler.post(runnable);
             }
+
+            @Override
+            public void onDataReceive(String buffer) {
+
+            }
+
             //开线程更新UI
             Runnable runnable = new Runnable() {
                 @Override
@@ -213,7 +219,7 @@ public class TestActivity extends AppCompatActivity implements OnServerChangeLis
         Toast.makeText(this, ipAddress, Toast.LENGTH_SHORT).show();
         if (!TextUtils.isEmpty(ipAddress)) {
             List<String> addressList = new ArrayList<>();
-            addressList.add("http://" + ipAddress + ":" + ServerService.port + ServerService.connect_post);
+            addressList.add("http://" + ipAddress + ":" + ServerService.port + ServerService.Call_roll_post);
             String join = TextUtils.join("\n", addressList);
             LogUtils.a(join);
         } else {

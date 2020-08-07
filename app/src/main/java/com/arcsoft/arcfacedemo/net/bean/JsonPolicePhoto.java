@@ -1,5 +1,7 @@
 package com.arcsoft.arcfacedemo.net.bean;
 
+import com.arcsoft.arcfacedemo.util.server.net.NetWorkUtils;
+
 public class JsonPolicePhoto {
 
 

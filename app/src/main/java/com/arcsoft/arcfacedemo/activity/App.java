@@ -1,9 +1,11 @@
 package com.arcsoft.arcfacedemo.activity;
 
 import android.app.Application;
+import android.content.Intent;
 
 import com.arcsoft.arcfacedemo.dao.helper.DaoUtils;
 import com.arcsoft.arcfacedemo.util.server.handler.CrashHandler;
+import com.arcsoft.arcfacedemo.util.server.server.RemindService;
 import com.arcsoft.arcfacedemo.util.utils.Utils;
 
 public class App extends Application{
@@ -19,6 +21,8 @@ public class App extends Application{
         //IpPort.init(App.this);
         DaoUtils.init(App.this);
       //  CrashHandler.getInstance().init();
+        Intent intent = new Intent(this, RemindService.class);
+        startService(intent);
     }
 
 

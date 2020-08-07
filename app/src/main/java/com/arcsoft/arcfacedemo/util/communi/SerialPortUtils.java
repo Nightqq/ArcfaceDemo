@@ -4,14 +4,19 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.function.ToDoubleBiFunction;
 
 import android_serialport_api.SerialPort;
 
+import android.app.kingsun.KingsunSmartAPI;
 import android.util.Log;
 
+import com.arcsoft.arcfacedemo.dao.bean.TemperatureSetting;
+import com.arcsoft.arcfacedemo.dao.helper.TemperatureSettingHelp;
 import com.arcsoft.arcfacedemo.util.utils.ConfigUtil;
 import com.arcsoft.arcfacedemo.util.utils.FileUtils;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
@@ -48,6 +53,11 @@ public class SerialPortUtils {
      */
     public SerialPort openSerialPort() {
         try {
+            int mode = ConfigUtil.getMode();
+            if (mode == 3) {
+                path = "/dev/ttyCOM0";
+                baudrate = 115200;
+            }
             serialPort = new SerialPort(new File(path), baudrate, 0);
             this.serialPortStatus = true;
             threadStatus = false; //线程状态
@@ -87,7 +97,7 @@ public class SerialPortUtils {
      * @param data String数据指令
      */
     public void sendSerialPort(String data) {
-        Log.d(TAG, "sendSerialPort: 发送数据");
+        //  Log.d(TAG, "sendSerialPort: 发送数据");
 
         try {
             byte[] sendData = data.getBytes(); //string转byte[]
@@ -96,7 +106,7 @@ public class SerialPortUtils {
                 outputStream.write('\n');
                 //outputStream.write('\r'+'\n');
                 outputStream.flush();
-                Log.d(TAG, "sendSerialPort: 串口数据发送成功");
+                //Log.d(TAG, "sendSerialPort: 串口数据发送成功");
             }
         } catch (IOException e) {
             Log.e(TAG, "sendSerialPort: 串口数据发送失败：" + e.toString());
@@ -118,13 +128,14 @@ public class SerialPortUtils {
         ok = SwitchUtils.xor(ok);
         sendSerialPort(ok);//收到卡号返回ok
     }
+
     /**
      * 发送串口指令（byte[]）
      *
      * @param data byte[]数据指令
      */
     public void sendSerialPort(byte[] data) {
-        FileUtils.getFileUtilsHelp().savaserialportLog("回复时间"+System.currentTimeMillis()+"板子：" + SwitchUtils.byte2HexStr(data) + "\n");
+        FileUtils.getFileUtilsHelp().savaserialportLog("回复时间" + System.currentTimeMillis() + "板子：" + SwitchUtils.byte2HexStr(data) + "\n");
         LogUtils.a(TAG, "sendSerialPort: 发送数据");
         try {
             if (data.length > 0) {
@@ -132,7 +143,7 @@ public class SerialPortUtils {
                 outputStream.write('\n');
                 //outputStream.write('\r'+'\n');
                 outputStream.flush();
-                LogUtils.a(TAG, "sendSerialPort: 串口数据发送成功");
+                //LogUtils.a(TAG, "sendSerialPort: 串口数据发送成功");
             }
         } catch (IOException e) {
             LogUtils.a(TAG, "sendSerialPort: 串口数据发送失败：" + e.toString());
@@ -141,7 +152,6 @@ public class SerialPortUtils {
 
     /**
      * 发送人脸识别成功指令给串口
-     *
      */
     public void successOpenDoor(String num) {
         byte[] bytes = SwitchUtils.hexStringToByte(num);
@@ -165,7 +175,7 @@ public class SerialPortUtils {
                     byte[] buffer = new byte[16];
                     if (inputStream.read(buffer) > 0) {
                         //LogUtils.a("收到卡号开始解析数据");
-                        Log.d(TAG, "run: 接收到了数据：" + SwitchUtils.byte2HexStr(buffer));
+                        LogUtils.a("run: 接收到了数据：" + SwitchUtils.byte2HexStr(buffer));
                         btyeParse(buffer);
                     }
                 } catch (IOException e) {
@@ -178,6 +188,38 @@ public class SerialPortUtils {
     //解析返回的数据
     public void btyeParse(byte[] buffer) {
         switch (buffer[1]) {
+            case 0x4F:
+                if (buffer[10] != 0x03 && buffer[11] != 0xE8) {
+                    //TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage(getwendu(buffer[4], buffer[5]));
+                    String hjwendu = getwendu(buffer[6], buffer[7]);
+                    String renwendu = getwendu(buffer[4], buffer[5]);
+                    double hwendu = Float.parseFloat(hjwendu);
+                    double rwendu = Float.parseFloat(renwendu);
+                    TemperatureSetting temperatureSetting = TemperatureSettingHelp.getTerminalInformation();
+                    if (hwendu >= 30 && hwendu < 35) {
+                        rwendu = Float.parseFloat(renwendu) + Float.parseFloat(temperatureSetting.getWen3035());
+                    } else if (hwendu >= 35 && hwendu < 40) {
+                        rwendu = Float.parseFloat(renwendu) + Float.parseFloat(temperatureSetting.getWen3540());
+                    } else if (hwendu >= 40) {
+                        rwendu = Float.parseFloat(renwendu) + Float.parseFloat(temperatureSetting.getWen40());
+                    }
+                    BigDecimal b = new BigDecimal(rwendu);
+                    rwendu= b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                    onDataReceiveListener.onDataReceive(rwendu + "");
+                    byte[] wendu = {buffer[4], buffer[5], buffer[6], buffer[7], buffer[8], buffer[9], buffer[10], buffer[11]};
+                    SimpleDateFormat simpleDateFormattime = new SimpleDateFormat("HH:mm:ss");
+                    Date date = new Date(System.currentTimeMillis());
+                    String time = simpleDateFormattime.format(date);
+                    FileUtils.getFileUtilsHelp().savatemperatureLog("时间:" + time +
+                            "数据:" + SwitchUtils.byte2HexStr(wendu) + "修改温度:" + rwendu
+                            + "温度:" + renwendu +
+                            "环境温度:" + hjwendu + "实际温度:" + getwendu(buffer[8], buffer[9]) + "\n");
+                } else {
+                    LogUtils.a("温度：超距");
+
+                    onDataReceiveListener.onDataReceive("超距");
+                }
+                break;
             case 0x40://刷卡返回接收到的卡号
                 FileUtils.getFileUtilsHelp().savaserialportLog("收到卡号：" + SwitchUtils.byte2HexStr(buffer) + "\n");
                 byte[] bs = new byte[9];
@@ -204,12 +246,21 @@ public class SerialPortUtils {
             case 0x50://人像对比结果，一般主动发送
                 break;
             case 0x00://返回成功
-                LogUtils.a("人像对比结果接收成功");
+                // LogUtils.a("人像对比结果接收成功");
                 break;
             case 0x01://返回失败
                 LogUtils.a("人像对比结果接收失败");
                 break;
         }
+    }
+
+
+    //传入字节转换温度
+    public String getwendu(byte a, byte b) {
+        int i1 = Integer.parseInt(SwitchUtils.byte2HexStr(a), 16);
+        int i2 = Integer.parseInt(SwitchUtils.byte2HexStr(b), 16);
+        float i = ((float) (i1 * 256 + i2)) / 100;
+        return "" + i;
     }
 
     private byte allnum = 0x00;
@@ -229,7 +280,7 @@ public class SerialPortUtils {
     //处理串口返回的命令播放对应语音
     private void speak(String num) {
         num = SwitchUtils.string2Hexstr(num);
-       // LogUtils.a("板子语音" + num);
+        // LogUtils.a("板子语音" + num);
         if (num.length() == 2) {
             num = "0" + num;
         }
@@ -423,6 +474,8 @@ public class SerialPortUtils {
 
     public static interface OnDataReceiveListener {
         public void onDataReceive(byte[] buffer);
+
+        public void onDataReceive(String buffer);
     }
 
     public void setOnDataReceiveListener(OnDataReceiveListener dataReceiveListener) {

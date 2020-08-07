@@ -4,7 +4,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.util.Log;
 import android.view.Surface;
@@ -17,10 +19,12 @@ import com.arcsoft.arcfacedemo.net.RequestHelper;
 import com.arcsoft.arcfacedemo.net.bean.JsonPolicePhoto;
 import com.arcsoft.arcfacedemo.util.image.ImageBase64Utils;
 import com.arcsoft.arcfacedemo.util.server.net.NetWorkUtils;
+import com.arcsoft.arcfacedemo.util.utils.FileUtils;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
 import com.arcsoft.arcfacedemo.util.utils.RequestUtil;
 import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -190,7 +194,28 @@ public class CameraHelper implements Camera.PreviewCallback {
     }
 
     public void takePictures(String id) {
-        mCamera.takePicture(null, null, new Camera.PictureCallback() {
+
+      /*  mCamera.setPreviewCallback(new Camera.PreviewCallback() {
+            @Override
+            public void onPreviewFrame(byte[] bytes, Camera camera) {
+                Camera.Size size = camera.getParameters().getPreviewSize();
+                YuvImage image = new YuvImage(bytes, ImageFormat.NV21, size.width, size.height, null);
+                if(image!=null){
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    image.compressToJpeg(new Rect(0, 0, size.width, size.height), 80, stream);
+                    Bitmap bmp = BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.size());
+                    FileUtils.getFileUtilsHelp().saveMyBitmap(bmp);
+                    mCamera.startPreview();
+                }else {
+                    LogUtils.a("图片为空");
+                }
+
+
+            }
+        });*/
+
+
+       /* mCamera.takePicture(null, null, new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] bytes, Camera camera) {
                 // TODO: 2018\9\10 0010  保存上传
@@ -202,7 +227,7 @@ public class CameraHelper implements Camera.PreviewCallback {
                 RequestHelper.getRequestHelper().uploadPolicephoto(jsonPolicePhoto);
                 mCamera.startPreview();
             }
-        });
+        });*/
     }
 
     public boolean isStopped() {
@@ -222,6 +247,7 @@ public class CameraHelper implements Camera.PreviewCallback {
             previewSize = null;
         }
     }
+
 
     private Camera.Size getBestSupportedSize(List<Camera.Size> sizes, Point previewViewSize) {
         if (sizes == null || sizes.size() == 0) {
@@ -287,12 +313,17 @@ public class CameraHelper implements Camera.PreviewCallback {
     }
 
 
+
+
+    private boolean halve=true;
     @Override
     public void onPreviewFrame(byte[] nv21, Camera camera) {
-        if (cameraListener != null) {
+        if (cameraListener != null&&halve) {//传输帧数减半
             cameraListener.onPreview(nv21, camera);
         }
+        halve=!halve;
     }
+
 
     private TextureView.SurfaceTextureListener textureListener = new TextureView.SurfaceTextureListener() {
         @Override

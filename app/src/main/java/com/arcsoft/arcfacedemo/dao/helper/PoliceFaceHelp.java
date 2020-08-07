@@ -12,13 +12,12 @@ import java.util.List;
 public class PoliceFaceHelp {
     private static PoliceFaceDao policeFaceDao = DaoUtils.getDaoSession().getPoliceFaceDao();
 
-
     //获取所有人脸
     public static List<PoliceFace> getPoliceFaceAllListFromDB() {
         return policeFaceDao.queryBuilder().list();
     }
 
-    //根据干警姓名获取卡号
+    //根据干警卡号获取数据
     public static PoliceFace getPoliceFaceByNum(String num) {
         QueryBuilder queryBuilder = policeFaceDao.queryBuilder();
         queryBuilder.where(PoliceFaceDao.Properties.EMP_ID.eq(num));

@@ -1,6 +1,7 @@
 package com.arcsoft.arcfacedemo.activity.arcface;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
@@ -13,6 +14,8 @@ import android.widget.Toast;
 import com.arcsoft.arcfacedemo.R;
 import com.arcsoft.arcfacedemo.activity.BaseActivity;
 import com.arcsoft.arcfacedemo.activity.TestActivity;
+import com.arcsoft.arcfacedemo.activity.callroll.CallRollActivity;
+import com.arcsoft.arcfacedemo.activity.thermometry.ThermometryActivity;
 import com.arcsoft.arcfacedemo.common.Constants;
 import com.arcsoft.arcfacedemo.dao.bean.PoliceFace;
 import com.arcsoft.arcfacedemo.dao.bean.TerminalInformation;
@@ -195,13 +198,14 @@ public class LogoActivity extends BaseActivity {
                 RequestHelper.getRequestHelper().getAllPoliceFace(new RequestHelper.OpenDownloadListener() {
                     @Override
                     public void openDownload(String msgs) {
-
                         if (msgs.equals("存储数据成功") || msgs.equals("存储数据成功")) {
                             dialog.dismiss();
                             if (model == 1) {
                                 startActivity(FaceRecognitionActivity.class);
                             } else if (model == 2) {
                                 startActivity(TestActivity.class);
+                            }else if (model == 3){
+                                startActivity(ThermometryActivity.class);
                             }
                             return;
                         } else if (isNumeric(msgs)) {
@@ -237,13 +241,16 @@ public class LogoActivity extends BaseActivity {
         return true;
     }
 
-    int model = 2;//1干警入监，2犯人点名
+    int model =3;//1干警入监，2犯人点名,3测温
 
     public void jumptonextactivity(View view) {
-        if (model == 1) {
+        ConfigUtil.setMode(model);
+        if (model ==1) {
             startActivity(FaceRecognitionActivity.class);
         } else if (model == 2) {
-            startActivity(TestActivity.class);
+            startActivity(new Intent(this,CallRollActivity.class));
+        }else if (model == 3) {
+            startActivity(new Intent(this,ThermometryActivity.class));
         }
     }
 

@@ -3,6 +3,8 @@ package com.arcsoft.arcfacedemo.activity;
 import android.Manifest;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -52,6 +54,7 @@ import com.arcsoft.arcfacedemo.util.camera.DualCameraHelper;
 import com.arcsoft.arcfacedemo.util.camera.CameraListener;
 import com.arcsoft.arcfacedemo.util.utils.DrawHelper;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -380,6 +383,13 @@ public class IrRegisterAndRecognizeActivity extends AppCompatActivity implements
 
             @Override
             public void onPreview(final byte[] nv21, Camera camera) {
+               /* Bitmap bitmap = BitmapFactory.decodeByteArray(nv21, 0, nv21.length);
+                int w = bitmap.getWidth(); // 得到图片的宽，高
+                int h = bitmap.getHeight();
+                Bitmap.createBitmap(bitmap,w/3,0,w/2,h/2);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] datas = baos.toByteArray();*/
                 rgbData = nv21;
                 processPreviewData();
             }

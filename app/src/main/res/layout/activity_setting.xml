@@ -113,4 +113,16 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/setting_entry_view_color" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_entry_height"
+        android:gravity="center_vertical"
+        android:onClick="jumpTowendusetting"
+        android:text="测温设置"
+        android:textColor="@color/setting_entry_text_color"
+        android:textSize="@dimen/setting_entry_text_size" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/setting_entry_view_color" />
 </LinearLayout>
