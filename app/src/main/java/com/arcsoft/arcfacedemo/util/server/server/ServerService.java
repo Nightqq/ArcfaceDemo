@@ -14,13 +14,15 @@ import com.yanzhenjie.andserver.AndServer;
 import com.yanzhenjie.andserver.Server;
 import com.yanzhenjie.andserver.filter.HttpCacheFilter;
 
+import org.apache.httpcore.util.NetUtils;
+
 import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
 
 import static android.support.constraint.Constraints.TAG;
 
 public class ServerService extends Service {
-    public String ip = "192.168.1.2";
+    public String ip = NetWorkUtils.getIP();
     public static int port = 3639;
     public static String Call_roll_post = "Call/Roll";
     public static String person_add_post = "/person/add";

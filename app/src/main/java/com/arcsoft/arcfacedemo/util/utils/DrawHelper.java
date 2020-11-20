@@ -1,5 +1,7 @@
 package com.arcsoft.arcfacedemo.util.utils;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -7,7 +9,9 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.hardware.Camera;
 
-import com.arcsoft.arcfacedemo.activity.thermometry.ThermometryActivity;
+import com.arcsoft.arcfacedemo.R;
+import com.arcsoft.arcfacedemo.dao.bean.TemperatureSetting;
+import com.arcsoft.arcfacedemo.dao.helper.TemperatureSettingHelp;
 import com.arcsoft.arcfacedemo.model.DrawInfo;
 import com.arcsoft.arcfacedemo.widget.FaceRectView;
 import com.arcsoft.face.AgeInfo;
@@ -61,7 +65,6 @@ public class DrawHelper {
         }
         faceRectView.addFaceInfo(drawInfoList);
     }
-
 
     /**
      * 调整人脸框用来绘制
@@ -173,9 +176,8 @@ public class DrawHelper {
         return newRect;
     }
 
-    private static boolean halve=true;
     /**
-     * 绘制数据信息到view上，若 {@link DrawInfo#name} 不为null则绘制 {@link DrawInfo#name}
+     * 绘制数据信息到view上，若 {@link DrawInfo#} 不为null则绘制 {@link DrawInfo#}
      *
      * @param canvas            需要被绘制的view的canvas
      * @param drawInfo          绘制信息
@@ -186,29 +188,43 @@ public class DrawHelper {
         if (canvas == null || drawInfo == null) {
             return;
         }
+
+        Path mPath = new Path();
+        Rect rect = drawInfo.getRect();
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(faceRectThickness);
-        if (drawInfo.getLiveness() == LivenessInfo.NOT_ALIVE){
+
+        if (ConfigUtil.getMode()==1||ConfigUtil.getMode()==3||ConfigUtil.getMode()==5||ConfigUtil.getMode()==6){
+            //mPath.moveTo(280, 310);
+            // mPath.lineTo(280, 315);
+            TemperatureSetting temperatureSetting = TemperatureSettingHelp.getTerminalInformation();
+
+            double v1 = rect.centerX() + Float.parseFloat(temperatureSetting.getForehead_xx())
+                    * (rect.centerX() - Float.parseFloat(temperatureSetting.getForehead_X()));
+            double v2 = (rect.centerY() - rect.height() * 0.35) + Float.parseFloat(temperatureSetting.getForehead_Yx())
+                    * (rect.centerY() - Float.parseFloat(temperatureSetting.getForehead_Y()));
+            //rpg
+            //mPath.moveTo(rect.centerX(), (float) (rect.centerY() - rect.height() * 0.36));
+            // mPath.lineTo(rect.centerX(), (float) (rect.centerY() - rect.height() * 0.36 + 5));
+            //红外
+
             paint.setColor(Color.RED);
-        }else  if (drawInfo.getLiveness() == LivenessInfo.ALIVE){
+            mPath.moveTo((float) v1 * 135 / 560-16, (float) (v2 * 180 / 760 - 5));
+            mPath.lineTo((float) v1 * 135 / 560-16, (float) (v2 * 180 / 760 ));
+            canvas.drawPath(mPath, paint);
+        }
+
+
+        if (drawInfo.getLiveness() == LivenessInfo.NOT_ALIVE) {
+            paint.setColor(Color.RED);
+        } else if (drawInfo.getLiveness() == LivenessInfo.ALIVE) {
             paint.setColor(Color.GREEN);
-        }else {
+        } else {
             paint.setColor(color);
         }
-        Path mPath = new Path();
+        //LogUtils.a("额头", v1 * 135 / 560 + "==" + (v2 * 180 / 760 - 23));
         //左上
-        Rect rect = drawInfo.getRect();
-        //x(0-600),Y(0-750)
-        LogUtils.a("人脸框坐标："+rect.centerX()+","+rect.centerY()+"  脸高："+rect.height());
-        if (halve){
-            if (rect.centerY()>450||rect.centerX()<200||rect.centerX()>500){
-                ThermometryActivity.setRectXY(false);
-            }else {
-                ThermometryActivity.setRectXY(true);
-            }
-        }
-        halve=!halve;
         mPath.moveTo(rect.left, rect.top + rect.height() / 4);
         mPath.lineTo(rect.left, rect.top);
         mPath.lineTo(rect.left + rect.width() / 4, rect.top);
@@ -225,6 +241,9 @@ public class DrawHelper {
         mPath.lineTo(rect.left, rect.bottom);
         mPath.lineTo(rect.left, rect.bottom - rect.height() / 4);
         canvas.drawPath(mPath, paint);
+        // 绘制文字，用最细的即可，避免在某些低像素设备上文字模糊
+        paint.setStrokeWidth(1);
+
         if (drawInfo.getName() == null) {
             paint.setStyle(Paint.Style.FILL_AND_STROKE);
             paint.setTextSize(rect.width() / 8);
@@ -235,14 +254,15 @@ public class DrawHelper {
                     + ","
                     + (drawInfo.getLiveness() == LivenessInfo.ALIVE ? "ALIVE" : (drawInfo.getLiveness() == LivenessInfo.NOT_ALIVE ? "NOT_ALIVE" : "UNKNOWN"));
             canvas.drawText(str, rect.left, rect.top - 10, paint);
-
-
+            //canvas.drawText("", rect.left, rect.top - 10, paint);
         } else {
             paint.setStyle(Paint.Style.FILL_AND_STROKE);
             paint.setTextSize(rect.width() / 8);
             canvas.drawText(drawInfo.getName(), rect.left, rect.top - 10, paint);
+            // canvas.drawText("", rect.left, rect.top - 10, paint);
         }
     }
+
 
     public void setPreviewWidth(int previewWidth) {
         this.previewWidth = previewWidth;

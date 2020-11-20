@@ -43,6 +43,7 @@
     <string name="camera_error_notice">\npossible reason:open two cameras at the same time is not allowed on this device</string>
     <string name="draw_ir_rect_mirror_horizontal">draw IR face rect mirror horizontal</string>
     <string name="draw_ir_rect_mirror_vertical">draw IR face rect mirror vertical</string>
+    <string name="title_activity_swiping_card_temperature">SwipingCardTemperatureActivity</string>
 
 
 </resources>

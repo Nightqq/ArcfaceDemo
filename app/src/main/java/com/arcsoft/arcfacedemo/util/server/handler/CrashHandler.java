@@ -44,11 +44,15 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     // 用于格式化日期,作为日志文件名的一部分
     private DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
-    /** 保证只有一个CrashHandler实例 */
+    /**
+     * 保证只有一个CrashHandler实例
+     */
     private CrashHandler() {
     }
 
-    /** 获取CrashHandler实例 ,单例模式 */
+    /**
+     * 获取CrashHandler实例 ,单例模式
+     */
     public static CrashHandler getInstance() {
         return INSTANCE;
     }
@@ -158,7 +162,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
      * 保存错误信息到文件中
      *
      * @param ex
-     * @return 返回文件名称,便于将文件传送到服务器
+     * @return 返回文件名称, 便于将文件传送到服务器
      */
     private String saveCrashInfo2File(Throwable ex) {
         StringBuffer sb = new StringBuffer();
@@ -186,16 +190,18 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
                     + ".txt";
             if (Environment.getExternalStorageState().equals(
                     Environment.MEDIA_MOUNTED)) {
-                String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "日志"+ File.separator + "异常捕捉";//日志保存目录
+                String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "日志" + File.separator + "异常捕捉";//日志保存目录
                 File dir = new File(path);
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
                 File fileDir = new File(dir, fileName);
+
                 FileWriter fw = new FileWriter(fileDir, true);
                 fw.write(sb.toString());
                 fw.flush();
                 fw.close();
+
             }
             return fileName;
         } catch (Exception e) {
@@ -204,7 +210,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         return null;
     }
 
-    private void restartApp(){
+    private void restartApp() {
         Intent intent = new Intent(mContext.getApplicationContext(), LogoActivity.class);
         AlarmManager mAlarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
         //重启应用，得使用PendingIntent

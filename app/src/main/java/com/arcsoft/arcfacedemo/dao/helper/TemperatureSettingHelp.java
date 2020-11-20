@@ -12,9 +12,10 @@ public class TemperatureSettingHelp {
         List<TemperatureSetting> list = temperatureSettingDao.queryBuilder().list();
         if (list==null||list.size()<1){
             TemperatureSetting temperatureSetting = new TemperatureSetting();
-            temperatureSetting.setWen3035("0.3");
-            temperatureSetting.setWen3540("0.5");
-            temperatureSetting.setWen40("0.8");
+            temperatureSetting.setForehead_X("280");
+            temperatureSetting.setForehead_xx("0.75");
+            temperatureSetting.setForehead_Y("410");
+            temperatureSetting.setForehead_Yx("0.63");
             temperatureSetting.setWenxia("35.2");
             temperatureSetting.setWenshang("37.3");
             savePoliceInfoToDB(temperatureSetting);

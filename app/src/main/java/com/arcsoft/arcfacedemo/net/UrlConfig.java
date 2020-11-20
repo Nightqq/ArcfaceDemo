@@ -31,7 +31,7 @@ public class UrlConfig {
     }
 
     public String getPoliceFaceUrl(){//查询人员特征值
-        return "http://"+getServerIP()+"/CALL/api/RollCallController/queryEmpFeature";
+        return "http://192.168.0.10/CALL/api/RollCallController/queryEmpFeature";
     }
 
     public String getPoliceFaceListUrl(){//多条件查询人员特征值
@@ -64,7 +64,11 @@ public class UrlConfig {
         return "http://"+getServerIP()+"/CallRoll";
     }
 
-    public String updateCriminalTemperature(){//上传温度
-        return "http://192.168.0.89:8001";
+    public String updateCriminalTemperature(){//上传温度--东
+        //return "http://192.168.0.89:8001/CallRoll/";
+        return "http://"+getServerIP()+"/CallRoll/";
     }
+
+
+
 }

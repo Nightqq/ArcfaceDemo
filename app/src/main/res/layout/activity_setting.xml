@@ -26,11 +26,24 @@
             android:background="@color/setting_entry_view_color" />
 
         <TextView
+            android:visibility="gone"
             android:onClick="jumpToupdatedevice"
             android:layout_width="match_parent"
             android:layout_height="@dimen/setting_entry_height"
             android:gravity="center_vertical"
             android:text="更新注册设备"
+            android:textColor="@color/setting_entry_text_color"
+            android:textSize="@dimen/setting_entry_text_size" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/setting_entry_view_color" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/setting_entry_height"
+            android:gravity="center_vertical"
+            android:onClick="jumpToModeChange"
+            android:text="模式修改"
             android:textColor="@color/setting_entry_text_color"
             android:textSize="@dimen/setting_entry_text_size" />
         <View
@@ -74,6 +87,48 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/setting_entry_view_color" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/setting_entry_height"
+            android:gravity="center_vertical"
+            android:onClick="jumpTowendusetting"
+            android:text="热成像额头坐标修正"
+            android:textColor="@color/setting_entry_text_color"
+            android:textSize="@dimen/setting_entry_text_size" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/setting_entry_view_color" />
+        <LinearLayout
+            android:layout_gravity="center_horizontal"
+
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/setting_entry_height"
+            android:gravity="center_vertical">
+            <TextView
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/setting_entry_height"
+                android:gravity="center_vertical"
+                android:onClick="jumpToactivation"
+                android:text="重新激活"
+                android:textColor="@color/setting_entry_text_color"
+                android:textSize="@dimen/setting_entry_text_size" />
+            <View
+                android:layout_width="2dp"
+                android:layout_height="@dimen/setting_entry_height"
+                android:background="@color/setting_entry_view_color" />
+            <TextView
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/setting_entry_height"
+                android:gravity="center_vertical"
+                android:onClick="jumpToofflineactivation"
+                android:text="离线激活"
+                android:textColor="@color/setting_entry_text_color"
+                android:textSize="@dimen/setting_entry_text_size" />
+        </LinearLayout>
     </LinearLayout>
 
    <!-- <TextView
@@ -102,6 +157,7 @@
         android:layout_height="1dp"
         android:background="@color/setting_entry_view_color" />
     <TextView
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="@dimen/setting_entry_height"
         android:gravity="center_vertical"
@@ -113,12 +169,13 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/setting_entry_view_color" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="@dimen/setting_entry_height"
         android:gravity="center_vertical"
-        android:onClick="jumpTowendusetting"
-        android:text="测温设置"
+        android:onClick="jumpToupdateFace"
+        android:text="拍照更新人脸"
         android:textColor="@color/setting_entry_text_color"
         android:textSize="@dimen/setting_entry_text_size" />
     <View

@@ -1,8 +1,13 @@
 package com.arcsoft.arcfacedemo.activity.arcface;
 
 import android.Manifest;
-import android.content.Intent;
+import android.app.kingsun.KingsunSmartAPI;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
@@ -13,27 +18,32 @@ import android.widget.Toast;
 
 import com.arcsoft.arcfacedemo.R;
 import com.arcsoft.arcfacedemo.activity.BaseActivity;
-import com.arcsoft.arcfacedemo.activity.TestActivity;
-import com.arcsoft.arcfacedemo.activity.callroll.CallRollActivity;
-import com.arcsoft.arcfacedemo.activity.thermometry.ThermometryActivity;
+import com.arcsoft.arcfacedemo.activity.local.LocalActivity;
+import com.arcsoft.arcfacedemo.activity.setting.SettingActivity;
+import com.arcsoft.arcfacedemo.activity.thermometry.MainActivity;
+import com.arcsoft.arcfacedemo.activity.thermometry.OneToNOutActivity;
+import com.arcsoft.arcfacedemo.activity.thermometry.OneToNTemperatureActivity;
+import com.arcsoft.arcfacedemo.activity.thermometry.SwipingCardActivity;
+import com.arcsoft.arcfacedemo.activity.thermometry.SwipingCardTemperatureActivity;
+import com.arcsoft.arcfacedemo.activity.thermometry.ThermometryHWActivity;
 import com.arcsoft.arcfacedemo.common.Constants;
-import com.arcsoft.arcfacedemo.dao.bean.PoliceFace;
 import com.arcsoft.arcfacedemo.dao.bean.TerminalInformation;
-import com.arcsoft.arcfacedemo.dao.helper.PoliceFaceHelp;
 import com.arcsoft.arcfacedemo.dao.helper.TerminalInformationHelp;
 import com.arcsoft.arcfacedemo.net.RequestHelper;
 import com.arcsoft.arcfacedemo.util.server.net.NetWorkUtils;
 import com.arcsoft.arcfacedemo.util.utils.ConfigUtil;
 import com.arcsoft.arcfacedemo.util.utils.DeviceUtils;
+import com.arcsoft.arcfacedemo.util.utils.FileUtils;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
 import com.arcsoft.arcfacedemo.util.utils.PermissionsUtils;
 import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
 import com.arcsoft.arcfacedemo.util.utils.TextToSpeechUtils;
+import com.arcsoft.arcfacedemo.util.utils.Utils;
 import com.arcsoft.face.ActiveFileInfo;
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
 
-import java.util.List;
+import java.io.File;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -57,8 +67,16 @@ public class LogoActivity extends BaseActivity {
         setContentView(R.layout.activity_logo);
         ButterKnife.bind(this);
         ConfigUtil.setFtOrient(this, FaceEngine.ASF_OP_0_HIGHER_EXT);
+        FileUtils.getFileUtilsHelp().saveupdatehelp(" 程序开始运行****************");
+       /* KingsunSmartAPI api = (KingsunSmartAPI) getSystemService("kingsunsmartapi");
+        api.setStatusBar(true);*/
+        FileUtils.getFileUtilsHelp().delateLog();
+
+
         if (!ConfigUtil.getFirstStart()) {
-            List<PoliceFace> policeFaceAllListFromDB = PoliceFaceHelp.getPoliceFaceAllListFromDB();
+            showdkdialog();
+            button.callOnClick();
+           /* List<PoliceFace> policeFaceAllListFromDB = PoliceFaceHelp.getPoliceFaceAllListFromDB();
             if (policeFaceAllListFromDB != null && policeFaceAllListFromDB.size() > 0) {
                 activityLogoJump.callOnClick();
                 this.finish();
@@ -66,10 +84,15 @@ public class LogoActivity extends BaseActivity {
             } else {
                 showdkdialog();
                 button.callOnClick();
-            }
+            }*/
         }
         getpermiss();
+        model = ConfigUtil.getMode();
+
     }
+
+
+
 
     //动态获取权限
     private void getpermiss() {
@@ -114,7 +137,8 @@ public class LogoActivity extends BaseActivity {
         Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
             public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
-                int activeCode = faceEngine.activeOnline(LogoActivity.this, Constants.APP_ID, Constants.SDK_KEY);
+                int activeCode = faceEngine.activeOnline(LogoActivity.this,
+                        Constants.ACTIVE_KEY(), Constants.APP_ID, Constants.SDK_KEY);
                 emitter.onNext(activeCode);
             }
         })
@@ -154,7 +178,7 @@ public class LogoActivity extends BaseActivity {
                             view.setClickable(true);
                         }
                         ActiveFileInfo activeFileInfo = new ActiveFileInfo();
-                        int res = faceEngine.getActiveFileInfo(LogoActivity.this, activeFileInfo);
+                        int res = faceEngine.getActiveFileInfo(activeFileInfo);
                         if (res == ErrorInfo.MOK) {
                             LogUtils.i(activeFileInfo.toString());
                         }
@@ -198,25 +222,10 @@ public class LogoActivity extends BaseActivity {
                 RequestHelper.getRequestHelper().getAllPoliceFace(new RequestHelper.OpenDownloadListener() {
                     @Override
                     public void openDownload(String msgs) {
-                        if (msgs.equals("存储数据成功") || msgs.equals("存储数据成功")) {
-                            dialog.dismiss();
-                            if (model == 1) {
-                                startActivity(FaceRecognitionActivity.class);
-                            } else if (model == 2) {
-                                startActivity(TestActivity.class);
-                            }else if (model == 3){
-                                startActivity(ThermometryActivity.class);
-                            }
-                            return;
-                        } else if (isNumeric(msgs)) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    LogUtils.a(msgs);
-                                    int i = Integer.parseInt(msgs);
-                                    progressBar.setProgress(i);
-                                }
-                            });
+                        TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage(msgs);
+                        dialog.dismiss();
+                        if (!ConfigUtil.getFirstStart()) {
+                            jumpActivity();
                         }
                     }
                 });
@@ -232,6 +241,20 @@ public class LogoActivity extends BaseActivity {
     }
 
 
+    public void jumpActivity() {
+        if (model == 1) {
+            startActivity(SwipingCardTemperatureActivity.class);
+        } else if (model == 2) {
+            startActivity(SwipingCardActivity.class);
+        } else if (model == 3 || model == 5 || model == 6) {
+            startActivity(OneToNTemperatureActivity.class);
+        } else if (model == 4) {
+            startActivity(OneToNOutActivity.class);
+        }
+        this.finish();
+    }
+
+
     public static boolean isNumeric(String str) {
         for (int i = str.length(); --i >= 0; ) {
             int chr = str.charAt(i);
@@ -241,17 +264,14 @@ public class LogoActivity extends BaseActivity {
         return true;
     }
 
-    int model =3;//1干警入监，2犯人点名,3测温
+    //1(进监)刷卡识别测温，
+    //2(出监)刷卡识别
+    //3(点名)1：N识别测温
+    int model = 1;
 
     public void jumptonextactivity(View view) {
         ConfigUtil.setMode(model);
-        if (model ==1) {
-            startActivity(FaceRecognitionActivity.class);
-        } else if (model == 2) {
-            startActivity(new Intent(this,CallRollActivity.class));
-        }else if (model == 3) {
-            startActivity(new Intent(this,ThermometryActivity.class));
-        }
+        jumpActivity();
     }
 
     public void jumptoRegistdevice(View view) {
@@ -338,4 +358,76 @@ public class LogoActivity extends BaseActivity {
     }
 
 
+    public void jumptoModeChoose(View mView) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog dialog = builder.create();
+        View view = View.inflate(this, R.layout.dialog_mode_change, null);
+        dialog.setView(view, 0, 0, 0, 0);
+        EditText mode = (EditText) view.findViewById(R.id.dialog_mode_edt);
+        Button modeconfirm = (Button) view.findViewById(R.id.dialog_mode_confirm);
+        Button modecancel = (Button) view.findViewById(R.id.dialog_mode_cancel);
+        modeconfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mode.getText() != null && mode.getText().length() > 0) {
+                    String string = mode.getText().toString();
+                    if (SwitchUtils.isNumeric(string)) {
+                        int i = Integer.parseInt(string);
+                        if (i >= 1 && i <= 6) {
+                            ConfigUtil.setMode(i);
+                            model = i;
+                            TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("修改成功");
+                            dialog.dismiss();
+                        } else {
+                            TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("模式只有一到六");
+                        }
+                    } else {
+                        TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("格式错误");
+                    }
+                } else {
+                    TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("不能为空");
+                }
+            }
+        });
+        modecancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+    private static final String[] NEEDED_PERMISSIONS_OFFLINE = new String[]{
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+    };
+    private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
+    private final static String FILE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "日志";
+    private String offline_path = FILE_PATH + File.separator + "离线激活";
+    public void jumpToofflineactivation(View view) {
+        if (!checkPermissions(NEEDED_PERMISSIONS_OFFLINE)) {
+            ActivityCompat.requestPermissions(this, NEEDED_PERMISSIONS_OFFLINE, ACTION_REQUEST_PERMISSIONS);
+            return;
+        }
+        String name = Constants.ACTIVE_KEY().replaceAll("-", "");
+        int activeCode = faceEngine.activeOffline(LogoActivity.this,
+                offline_path + File.separator + name+".dat");
+        if (activeCode == ErrorInfo.MOK) {
+            showToast(getString(R.string.active_success));
+        } else if (activeCode == ErrorInfo.MERR_ASF_ALREADY_ACTIVATED) {
+            showToast(getString(R.string.already_activated));
+        } else {
+            showToast(getString(R.string.active_failed, activeCode));
+        }
+    }
+    private boolean checkPermissions(String[] neededPermissions) {
+        if (neededPermissions == null || neededPermissions.length == 0) {
+            return true;
+        }
+        boolean allGranted = true;
+        for (String neededPermission : neededPermissions) {
+            allGranted &= ContextCompat.checkSelfPermission(this, neededPermission) == PackageManager.PERMISSION_GRANTED;
+        }
+        return allGranted;
+    }
 }

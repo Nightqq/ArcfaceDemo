@@ -9,6 +9,7 @@ import android.view.View;
 
 import com.arcsoft.arcfacedemo.model.DrawInfo;
 import com.arcsoft.arcfacedemo.util.utils.DrawHelper;
+import com.arcsoft.arcfacedemo.util.utils.LogUtils;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

@@ -11,25 +11,29 @@ import org.greenrobot.greendao.annotation.Generated;
 public class TemperatureSetting {
     @Id
     private Long id;
-    //30-35修改温度
-    private String wen3035 = 0.3+"";
-    //35-40修改温度
-    private String wen3540 = 0.5+"";
-    //40+修改温度
-    private String wen40 = 0.8+"";
-    //下线
+    //X中心坐标
+    private String forehead_X =280+"";
+    //X系数
+    private String forehead_xx = 0.75+"";
+    //Y中心坐标
+    private String forehead_Y = 410+"";
+    //Y系数
+    private String forehead_Yx = 0.63+"";
+    //下限
     private String wenxia = 35.2+"";
     //上限
     private String wenshang = 37.3+"";
     //测温日志开关
     private boolean cewenrizhi = true;
-    @Generated(hash = 13785779)
-    public TemperatureSetting(Long id, String wen3035, String wen3540, String wen40,
-            String wenxia, String wenshang, boolean cewenrizhi) {
+    @Generated(hash = 619599025)
+    public TemperatureSetting(Long id, String forehead_X, String forehead_xx,
+            String forehead_Y, String forehead_Yx, String wenxia, String wenshang,
+            boolean cewenrizhi) {
         this.id = id;
-        this.wen3035 = wen3035;
-        this.wen3540 = wen3540;
-        this.wen40 = wen40;
+        this.forehead_X = forehead_X;
+        this.forehead_xx = forehead_xx;
+        this.forehead_Y = forehead_Y;
+        this.forehead_Yx = forehead_Yx;
         this.wenxia = wenxia;
         this.wenshang = wenshang;
         this.cewenrizhi = cewenrizhi;
@@ -43,23 +47,29 @@ public class TemperatureSetting {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getWen3035() {
-        return this.wen3035;
+    public String getForehead_X() {
+        return this.forehead_X;
     }
-    public void setWen3035(String wen3035) {
-        this.wen3035 = wen3035;
+    public void setForehead_X(String forehead_X) {
+        this.forehead_X = forehead_X;
     }
-    public String getWen3540() {
-        return this.wen3540;
+    public String getForehead_xx() {
+        return this.forehead_xx;
     }
-    public void setWen3540(String wen3540) {
-        this.wen3540 = wen3540;
+    public void setForehead_xx(String forehead_xx) {
+        this.forehead_xx = forehead_xx;
     }
-    public String getWen40() {
-        return this.wen40;
+    public String getForehead_Y() {
+        return this.forehead_Y;
     }
-    public void setWen40(String wen40) {
-        this.wen40 = wen40;
+    public void setForehead_Y(String forehead_Y) {
+        this.forehead_Y = forehead_Y;
+    }
+    public String getForehead_Yx() {
+        return this.forehead_Yx;
+    }
+    public void setForehead_Yx(String forehead_Yx) {
+        this.forehead_Yx = forehead_Yx;
     }
     public String getWenxia() {
         return this.wenxia;
@@ -79,6 +89,7 @@ public class TemperatureSetting {
     public void setCewenrizhi(boolean cewenrizhi) {
         this.cewenrizhi = cewenrizhi;
     }
+   
    
 
 }

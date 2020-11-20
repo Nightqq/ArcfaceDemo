@@ -7,7 +7,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="490dp"
+        android:layout_height="540dp"
         android:background="@drawable/bg_frame"
         android:orientation="vertical">
 
@@ -17,7 +17,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="20dp"
             android:gravity="center"
-            android:text="测温设置"
+            android:text="坐标修正"
             android:textColor="#fff"
             android:textSize="32sp" />
 
@@ -33,18 +33,18 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="30-35修改"
+                android:text="X中心坐标"
                 android:textColor="#fff"
                 android:textSize="26sp" />
 
             <EditText
-                android:id="@+id/dialog_3035"
+                android:id="@+id/dialog_x"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="50dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:hint="0.3"
+                android:hint="280"
                 android:textColorHint="#AAAAAA"
                 android:textColor="#fff"
                 android:textSize="26sp" />
@@ -61,18 +61,18 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="35-40修改"
+                android:text="系数"
                 android:textColor="#fff"
                 android:textSize="26sp" />
 
             <EditText
-                android:id="@+id/dialog_3540"
+                android:id="@+id/dialog_xx"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="50dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:hint="0.5"
+                android:hint="0.75"
                 android:textColorHint="#AAAAAA"
                 android:textColor="#fff"
                 android:textSize="26sp" />
@@ -88,19 +88,19 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="40+修改"
+                android:text="Y中心坐标"
                 android:textColor="#fff"
                 android:textSize="26sp" />
 
             <EditText
-                android:id="@+id/dialog_40"
+                android:id="@+id/dialog_y"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginRight="50dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:hint="0.8"
+                android:hint="410"
                 android:textColorHint="#AAAAAA"
                 android:textColor="#EBEBEB"
                 android:textSize="26sp" />
@@ -118,26 +118,28 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="重测下限"
+                android:text="系数"
                 android:textColor="#fff"
                 android:textSize="26sp" />
 
             <EditText
-                android:id="@+id/dialog_xiaxian"
+                android:id="@+id/dialog_yx"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginRight="50dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:hint="35.2"
+                android:hint="0.63"
                 android:textColorHint="#AAAAAA"
                 android:textColor="#fff"
                 android:textSize="26sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:orientation="horizontal">
 
             <TextView
@@ -146,7 +148,7 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="报警上限"
+                android:text="测温上限"
                 android:textColor="#fff"
                 android:textSize="26sp" />
 
@@ -163,7 +165,35 @@
                 android:textColor="#fff"
                 android:textSize="26sp" />
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
 
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="测温下限"
+                android:textColor="#fff"
+                android:textSize="26sp" />
+
+            <EditText
+                android:id="@+id/dialog_xiaxian"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginRight="50dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:hint="35.8"
+                android:textColorHint="#AAAAAA"
+                android:textColor="#fff"
+                android:textSize="26sp" />
+        </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

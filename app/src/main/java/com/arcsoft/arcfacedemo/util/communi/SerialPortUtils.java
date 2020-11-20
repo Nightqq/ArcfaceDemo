@@ -23,6 +23,8 @@ import com.arcsoft.arcfacedemo.util.utils.LogUtils;
 import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
 import com.arcsoft.arcfacedemo.util.utils.TextToSpeechUtils;
 
+import org.greenrobot.greendao.annotation.Id;
+
 public class SerialPortUtils {
     private final String TAG = "SerialPortUtils";
     private String path = "/dev/ttyCOM2";
@@ -54,10 +56,16 @@ public class SerialPortUtils {
     public SerialPort openSerialPort() {
         try {
             int mode = ConfigUtil.getMode();
-            if (mode == 3) {
+           /* if (mode == 3) {
                 path = "/dev/ttyCOM0";
                 baudrate = 115200;
-            }
+            }else if (mode == 2) {
+                path = "/dev/ttyCOM2";
+                baudrate = 9600;
+            }*/
+            path = "/dev/ttyCOM0";
+            baudrate = 115200;
+            LogUtils.a("串口：",path+baudrate);
             serialPort = new SerialPort(new File(path), baudrate, 0);
             this.serialPortStatus = true;
             threadStatus = false; //线程状态
@@ -188,37 +196,8 @@ public class SerialPortUtils {
     //解析返回的数据
     public void btyeParse(byte[] buffer) {
         switch (buffer[1]) {
-            case 0x4F:
-                if (buffer[10] != 0x03 && buffer[11] != 0xE8) {
-                    //TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage(getwendu(buffer[4], buffer[5]));
-                    String hjwendu = getwendu(buffer[6], buffer[7]);
-                    String renwendu = getwendu(buffer[4], buffer[5]);
-                    double hwendu = Float.parseFloat(hjwendu);
-                    double rwendu = Float.parseFloat(renwendu);
-                    TemperatureSetting temperatureSetting = TemperatureSettingHelp.getTerminalInformation();
-                    if (hwendu >= 30 && hwendu < 35) {
-                        rwendu = Float.parseFloat(renwendu) + Float.parseFloat(temperatureSetting.getWen3035());
-                    } else if (hwendu >= 35 && hwendu < 40) {
-                        rwendu = Float.parseFloat(renwendu) + Float.parseFloat(temperatureSetting.getWen3540());
-                    } else if (hwendu >= 40) {
-                        rwendu = Float.parseFloat(renwendu) + Float.parseFloat(temperatureSetting.getWen40());
-                    }
-                    BigDecimal b = new BigDecimal(rwendu);
-                    rwendu= b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-                    onDataReceiveListener.onDataReceive(rwendu + "");
-                    byte[] wendu = {buffer[4], buffer[5], buffer[6], buffer[7], buffer[8], buffer[9], buffer[10], buffer[11]};
-                    SimpleDateFormat simpleDateFormattime = new SimpleDateFormat("HH:mm:ss");
-                    Date date = new Date(System.currentTimeMillis());
-                    String time = simpleDateFormattime.format(date);
-                    FileUtils.getFileUtilsHelp().savatemperatureLog("时间:" + time +
-                            "数据:" + SwitchUtils.byte2HexStr(wendu) + "修改温度:" + rwendu
-                            + "温度:" + renwendu +
-                            "环境温度:" + hjwendu + "实际温度:" + getwendu(buffer[8], buffer[9]) + "\n");
-                } else {
-                    LogUtils.a("温度：超距");
-
-                    onDataReceiveListener.onDataReceive("超距");
-                }
+            case 0x4F://温度返回
+                    LogUtils.a("日志","温度返回");
                 break;
             case 0x40://刷卡返回接收到的卡号
                 FileUtils.getFileUtilsHelp().savaserialportLog("收到卡号：" + SwitchUtils.byte2HexStr(buffer) + "\n");
@@ -280,7 +259,7 @@ public class SerialPortUtils {
     //处理串口返回的命令播放对应语音
     private void speak(String num) {
         num = SwitchUtils.string2Hexstr(num);
-        // LogUtils.a("板子语音" + num);
+         LogUtils.a("板子语音" + num);
         if (num.length() == 2) {
             num = "0" + num;
         }

@@ -16,7 +16,7 @@ public class RemindService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         LogUtils.a("定时服务开始");
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Long secondsNextEarlyMorning = SwitchUtils.getSecondsNextEarlyMorning(11,0,0);
+        Long secondsNextEarlyMorning = SwitchUtils.getSecondsNextEarlyMorning(4,10,0);
         Intent i = new Intent(getApplicationContext(), AlarmReceiver.class);
         i.putExtra("flag",21);
         PendingIntent pi = PendingIntent.getBroadcast(getApplicationContext(), count++, i, PendingIntent.FLAG_UPDATE_CURRENT);

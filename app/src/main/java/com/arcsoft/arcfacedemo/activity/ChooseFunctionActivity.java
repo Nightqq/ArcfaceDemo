@@ -181,7 +181,7 @@ public class ChooseFunctionActivity extends AppCompatActivity {
         Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
             public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
-                int activeCode = faceEngine.activeOnline(ChooseFunctionActivity.this, Constants.APP_ID, Constants.SDK_KEY);
+                int activeCode = faceEngine.activeOnline(ChooseFunctionActivity.this,  Constants.ACTIVE_KEY(), Constants.APP_ID, Constants.SDK_KEY);
                 emitter.onNext(activeCode);
             }
         })
@@ -207,7 +207,7 @@ public class ChooseFunctionActivity extends AppCompatActivity {
                             view.setClickable(true);
                         }
                         ActiveFileInfo activeFileInfo = new ActiveFileInfo();
-                        int res = faceEngine.getActiveFileInfo(ChooseFunctionActivity.this, activeFileInfo);
+                        int res = faceEngine.getActiveFileInfo(activeFileInfo);
                         if (res == ErrorInfo.MOK) {
                             Log.i(TAG, activeFileInfo.toString());
                         }

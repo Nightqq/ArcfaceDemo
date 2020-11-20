@@ -42,9 +42,11 @@ public class CallRollHandler implements RequestHandler {
                 backIntoToView(false, "请求参数异常,请检查");
                 return;
             }
+            LogUtils.a("服务端发送的数据：", content);
             JSONObject jsonObject = new JSONObject(content);
-           //String code = jsonObject.getString("code");
-            callRollListenter.setCallRol(content);
+            String code = jsonObject.getString("code");
+
+            //callRollListenter.setCallRol(content);
             backIntoToView(true, "请求成功");
         } catch (JSONException e) {
             backIntoToView(false, "请求参数不正确");
@@ -54,7 +56,7 @@ public class CallRollHandler implements RequestHandler {
 
 
     /**
-     * 提交的数据必须是JSON格式的=================================================================================
+     * 提交的数据必须是JSON格式的===   ==============================================================================
      */
     private void backIntoToView(boolean success, String msg) {
         try {

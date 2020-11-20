@@ -17,10 +17,6 @@ import android.util.Log;
 import android.view.WindowManager;
 
 import com.arcsoft.arcfacedemo.faceserver.FaceServer;
-import com.arcsoft.arcfacedemo.net.RequestHelper;
-import com.arcsoft.arcfacedemo.net.bean.JsonPolicePhoto;
-import com.arcsoft.arcfacedemo.util.image.ImageBase64Utils;
-import com.arcsoft.arcfacedemo.util.server.net.NetWorkUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,7 +24,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  *
@@ -53,18 +48,27 @@ public class CaptureUtil {
     private DisplayMetrics metrics = null;
     private WindowManager mWindowManager = null;
     Context context;
+    private CaptureUtil captureUtil;
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public CaptureUtil setUpMediaProjection(Context context, MediaProjection mediaProjection) {
+    public CaptureUtil setUpMediaProjection( MediaProjection mediaProjection) {
         if (mediaProjection == null) {
             LogUtils.a("MediaProjection null图片");
             return null;
         }
-        this.context = context;
+        this.context = Utils.getContext();
         mMediaProjection = mediaProjection;
         createVirtualEnvironment();
         virtualDisplay();
         return CaptureUtil.this;
+    }
+
+
+    public CaptureUtil getCaptureUtil(){
+        if (captureUtil==null){
+            captureUtil = new CaptureUtil();
+        }
+        return captureUtil;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -106,6 +110,7 @@ public class CaptureUtil {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public Bitmap startCaptureBitmap(int x, int y, int mWidth, int mHeight) throws NullPointerException {
+        LogUtils.a("日志","开始截屏");
         strDate = dateFormat.format(new java.util.Date());
         nameImage = pathImage + strDate + ".png";
         Image image = mImageReader.acquireLatestImage();
@@ -147,6 +152,7 @@ public class CaptureUtil {
     public Bitmap startCapture() throws NullPointerException {
         Bitmap bitmap = startCaptureBitmap();
         bitmap = FaceServer.getInstance().getFaceRect(bitmap);
+        LogUtils.a("日志","截图照片返回");
         return bitmap;
     }
 

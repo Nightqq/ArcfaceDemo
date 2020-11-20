@@ -22,6 +22,9 @@ public final class Utils {
         Utils.context = context.getApplicationContext();
     }
 
+
+
+
     /**
      * 获取ApplicationContext
      *

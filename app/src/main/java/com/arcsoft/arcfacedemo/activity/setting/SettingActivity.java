@@ -1,5 +1,6 @@
 package com.arcsoft.arcfacedemo.activity.setting;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.app.kingsun.KingsunSmartAPI;
@@ -8,11 +9,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
@@ -25,29 +28,36 @@ import android.widget.Toast;
 
 import com.arcsoft.arcfacedemo.R;
 import com.arcsoft.arcfacedemo.activity.BaseActivity;
+import com.arcsoft.arcfacedemo.activity.ChooseFunctionActivity;
 import com.arcsoft.arcfacedemo.activity.TestActivity;
+import com.arcsoft.arcfacedemo.common.Constants;
 import com.arcsoft.arcfacedemo.dao.bean.TemperatureSetting;
 import com.arcsoft.arcfacedemo.dao.bean.TerminalInformation;
 import com.arcsoft.arcfacedemo.dao.helper.PoliceFaceHelp;
 import com.arcsoft.arcfacedemo.dao.helper.TemperatureSettingHelp;
 import com.arcsoft.arcfacedemo.dao.helper.TerminalInformationHelp;
 import com.arcsoft.arcfacedemo.net.RequestHelper;
-import com.arcsoft.arcfacedemo.net.UrlConfig;
 import com.arcsoft.arcfacedemo.util.server.net.NetWorkUtils;
 import com.arcsoft.arcfacedemo.util.utils.ConfigUtil;
 import com.arcsoft.arcfacedemo.util.utils.DeviceUtils;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
 import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
 import com.arcsoft.arcfacedemo.util.utils.TextToSpeechUtils;
-import com.arcsoft.arcfacedemo.util.utils.Utils;
+import com.arcsoft.face.ActiveFileInfo;
+import com.arcsoft.face.ErrorInfo;
+import com.arcsoft.face.FaceEngine;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.InputStreamReader;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class SettingActivity extends BaseActivity {
     @BindView(R.id.activity_setting_gone)
@@ -85,7 +95,7 @@ public class SettingActivity extends BaseActivity {
         TextView device_name = (TextView) view.findViewById(R.id.dialog_terminal_device_name);
         device_name.setText(terminalInformation.getTerminalName());
         TextView ip = (TextView) view.findViewById(R.id.dialog_terminal_ip);
-        ip.setText(terminalInformation.getDeviceIP());
+        ip.setText(NetWorkUtils.getIP());
 
         EditText serverip_edt = (EditText) view.findViewById(R.id.dialog_terminal_serverip_edt);
         serverip_edt.setText(terminalInformation.getServerIP() + "");
@@ -129,6 +139,7 @@ public class SettingActivity extends BaseActivity {
                 String text = serverip_edt.getText().toString();
                 if (text != null && text.replaceAll(" ", "").length() > 0) {
                     if (SwitchUtils.isIP(text)) {
+
                         terminalInformation.setServerIP(text);
                         TerminalInformationHelp.savePoliceInfoToDB(terminalInformation);
                         TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("修改成功");
@@ -215,19 +226,12 @@ public class SettingActivity extends BaseActivity {
                 RequestHelper.getRequestHelper().getAllPoliceFace(new RequestHelper.OpenDownloadListener() {
                     @Override
                     public void openDownload(String msgs) {
-
-                        if (msgs.equals("存储数据成功") || msgs.equals("存储数据成功")) {
+                        TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage(msgs);
+                        if (msgs.equals("存储数据成功")) {
                             dialog.dismiss();
                             return;
-                        } else if (SwitchUtils.isNumeric(msgs)) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    LogUtils.a(msgs);
-                                    int i = Integer.parseInt(msgs);
-                                    progressBar.setProgress(i);
-                                }
-                            });
+                        } else  {
+                            dialog.dismiss();
                         }
                     }
                 });
@@ -254,6 +258,8 @@ public class SettingActivity extends BaseActivity {
         TerminalInformation terminalInformation = TerminalInformationHelp.getTerminalInformation();
         EditText edtDeviceId = (EditText) view.findViewById(R.id.dialog_device_id);
         edtDeviceId.setText(terminalInformation.getTerminalNum());
+        TextView edtserverIP = (TextView) view.findViewById(R.id.dialog_server_ip);
+        edtserverIP.setText(terminalInformation.getServerIP());
         EditText edtDeviceName = (EditText) view.findViewById(R.id.dialog_device_name);
         edtDeviceName.setText(terminalInformation.getTerminalName());
         TextView edtDeviceIP = (TextView) view.findViewById(R.id.dialog_device_ip);
@@ -318,39 +324,43 @@ public class SettingActivity extends BaseActivity {
         dialog.setView(view, 0, 0, 0, 0);
 
         TemperatureSetting temperatureSetting = TemperatureSettingHelp.getTerminalInformation();
-        EditText edt3035 = (EditText) view.findViewById(R.id.dialog_3035);
-        LogUtils.a("温度"+temperatureSetting.getWen3035());
-        edt3035.setText(temperatureSetting.getWen3035());
-        EditText edt3540 = (EditText) view.findViewById(R.id.dialog_3540);
-        edt3540.setText(temperatureSetting.getWen3540());
-        EditText edt40 = (EditText) view.findViewById(R.id.dialog_40);
-        edt40.setText(temperatureSetting.getWen40());
-        EditText edtxiaxian = (EditText) view.findViewById(R.id.dialog_xiaxian);
-        edtxiaxian.setText(temperatureSetting.getWenxia());
-        EditText edtshangxian = (EditText) view.findViewById(R.id.dialog_shangxian);
-        edtshangxian.setText(temperatureSetting.getWenshang());
+        EditText x = (EditText) view.findViewById(R.id.dialog_x);
+        x.setText(temperatureSetting.getForehead_X());
+        EditText xx = (EditText) view.findViewById(R.id.dialog_xx);
+        xx.setText(temperatureSetting.getForehead_xx());
+        EditText y = (EditText) view.findViewById(R.id.dialog_y);
+        y.setText(temperatureSetting.getForehead_Y());
+        EditText yx = (EditText) view.findViewById(R.id.dialog_yx);
+        yx.setText(temperatureSetting.getForehead_Yx());
+        EditText shangx = (EditText) view.findViewById(R.id.dialog_shangxian);
+        shangx.setText(temperatureSetting.getWenshang());
+        EditText xiax = (EditText) view.findViewById(R.id.dialog_xiaxian);
+        xiax.setText(temperatureSetting.getWenxia());
         Button edtDeviceconfirm = (Button) view.findViewById(R.id.dialog_device_confirm);
         Button edtDevicecancel = (Button) view.findViewById(R.id.dialog_device_cancel);
         dialog.setCanceledOnTouchOutside(true);
         edtDeviceconfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!edt3035.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
+                if (!x.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
                     TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("第一行格式错误");
-                } else if (!edt3540.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
+                } else if (!xx.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
                     TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("第二行格式错误");
-                } else if (!edt40.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
+                } else if (!y.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
                     TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("第三行格式错误");
-                } else if (!edtxiaxian.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
+                } else if (!yx.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
                     TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("第四行格式错误");
-                } else if (!edtshangxian.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
-                    TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("第五行格式错误");
-                }else {
-                    temperatureSetting.setWen3035(edt3035.getText().toString());
-                    temperatureSetting.setWen3540(edt3540.getText().toString());
-                    temperatureSetting.setWen40(edt40.getText().toString());
-                    temperatureSetting.setWenxia(edtxiaxian.getText().toString());
-                    temperatureSetting.setWenshang(edtshangxian.getText().toString());
+                }else if (!shangx.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
+                    TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("上限格式错误");
+                }else if (!xiax.getText().toString().matches("-?[0-9]+.*[0-9]*")) {
+                    TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("下限格式错误");
+                }  else {
+                    temperatureSetting.setForehead_X(x.getText().toString());
+                    temperatureSetting.setForehead_xx(xx.getText().toString());
+                    temperatureSetting.setForehead_Y(y.getText().toString());
+                    temperatureSetting.setForehead_Yx(yx.getText().toString());
+                    temperatureSetting.setWenshang(shangx.getText().toString());
+                    temperatureSetting.setWenxia(xiax.getText().toString());
                     TemperatureSettingHelp.savePoliceInfoToDB(temperatureSetting);
                     TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("修改成功");
                     dialog.dismiss();
@@ -372,8 +382,48 @@ public class SettingActivity extends BaseActivity {
     }
 
     public void jumpTodeleteAllFace(View view) {
-
         showPositivedialog();
+    }
+
+    public void jumpToModeChange(View mView) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog dialog = builder.create();
+        View view = View.inflate(this, R.layout.dialog_mode_change, null);
+        dialog.setView(view, 0, 0, 0, 0);
+        EditText mode = (EditText) view.findViewById(R.id.dialog_mode_edt);
+        Button modeconfirm = (Button) view.findViewById(R.id.dialog_mode_confirm);
+        Button modecancel = (Button) view.findViewById(R.id.dialog_mode_cancel);
+        TextView restart = (TextView) view.findViewById(R.id.mode_reastart);
+        restart.setVisibility(View.VISIBLE);
+        modeconfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mode.getText() != null&&mode.getText().length()>0) {
+                    String string = mode.getText().toString();
+                    if (SwitchUtils.isNumeric(string)) {
+                        int i = Integer.parseInt(string);
+                        if (i >= 1 && i <= 6) {
+                            ConfigUtil.setMode(i);
+                            TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("修改成功");
+                            dialog.dismiss();
+                        } else {
+                            TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("模式只有一到六");
+                        }
+                    } else {
+                        TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("格式错误");
+                    }
+                } else {
+                    TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage("不能为空");
+                }
+            }
+        });
+        modecancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
     }
 
     public void showPositivedialog() {
@@ -383,6 +433,7 @@ public class SettingActivity extends BaseActivity {
         dialog.setView(view, 0, 0, 0, 0);
         Button edtpositiveconfirm = (Button) view.findViewById(R.id.dialog_positive_confirm);
         Button edtpositivecancel = (Button) view.findViewById(R.id.dialog_positive_cancel);
+
         edtpositiveconfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -477,5 +528,96 @@ public class SettingActivity extends BaseActivity {
         registerReceiver(broadcastReceiver, intentFilter);
     }
 
+    //初始化人脸引擎
+    private FaceEngine faceEngine = new FaceEngine();
+    public void jumpToactivation(View view) {
+        if (view != null) {
+            view.setClickable(false);
+        }
+        Observable.create(new ObservableOnSubscribe<Integer>() {
+            @Override
+            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+                int activeCode = faceEngine.activeOnline(SettingActivity.this,
+                        Constants.ACTIVE_KEY(), Constants.APP_ID, Constants.SDK_KEY);
+                emitter.onNext(activeCode);
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Integer>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
 
+                    }
+
+                    @Override
+                    public void onNext(Integer activeCode) {
+                        if (activeCode == ErrorInfo.MOK) {
+                            showToast(getString(R.string.active_success));
+                            ConfigUtil.setFirstStart();
+
+                        } else if (activeCode == ErrorInfo.MERR_ASF_ALREADY_ACTIVATED) {
+                            showToast(getString(R.string.already_activated));
+                            ConfigUtil.setFirstStart();
+
+                        } else {
+                            showToast(getString(R.string.active_failed, activeCode));
+                        }
+
+                        if (view != null) {
+                            view.setClickable(true);
+                        }
+                        ActiveFileInfo activeFileInfo = new ActiveFileInfo();
+                        int res = faceEngine.getActiveFileInfo(activeFileInfo);
+                        if (res == ErrorInfo.MOK) {
+                            LogUtils.i(activeFileInfo.toString());
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+                });
+    }
+
+    public void jumpToupdateFace(View view) {
+        startActivity(new Intent(this,RegistFaceActivity.class));
+    }
+    private static final String[] NEEDED_PERMISSIONS_OFFLINE = new String[]{
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+    };
+    private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
+
+    private String offline_path = FILE_PATH + File.separator + "离线激活";
+    public void jumpToofflineactivation(View view) {
+        if (!checkPermissions(NEEDED_PERMISSIONS_OFFLINE)) {
+            ActivityCompat.requestPermissions(this, NEEDED_PERMISSIONS_OFFLINE, ACTION_REQUEST_PERMISSIONS);
+            return;
+        }
+        String name = Constants.ACTIVE_KEY().replaceAll("-", "");
+        int activeCode = faceEngine.activeOffline(SettingActivity.this,
+                offline_path + File.separator + name+".dat");
+        if (activeCode == ErrorInfo.MOK) {
+            showToast(getString(R.string.active_success));
+        } else if (activeCode == ErrorInfo.MERR_ASF_ALREADY_ACTIVATED) {
+            showToast(getString(R.string.already_activated));
+        } else {
+            showToast(getString(R.string.active_failed, activeCode));
+        }
+    }
+    private boolean checkPermissions(String[] neededPermissions) {
+        if (neededPermissions == null || neededPermissions.length == 0) {
+            return true;
+        }
+        boolean allGranted = true;
+        for (String neededPermission : neededPermissions) {
+            allGranted &= ContextCompat.checkSelfPermission(this, neededPermission) == PackageManager.PERMISSION_GRANTED;
+        }
+        return allGranted;
+    }
 }

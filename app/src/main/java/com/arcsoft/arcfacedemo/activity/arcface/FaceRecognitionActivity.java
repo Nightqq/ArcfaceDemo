@@ -386,7 +386,7 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
                     policeNum = SwitchUtils.byte2HexStr(buffer).replaceAll(" ", "");
                     LogUtils.a("收到卡号时间：" + policeNum);
                     //TextToSpeechUtils.getTextToSpeechHelp().notifyNewMessage(policeNum);
-                    RequestHelper.getRequestHelper().getPoliceFace(handler, policeNum, new RequestHelper.OpenDownloadListener() {
+                    RequestHelper.getRequestHelper().getPoliceFace( policeNum, new RequestHelper.OpenDownloadListener() {
                         @Override
                         public void openDownload(String message) {
                             if (message.equals("下载成功")) {
@@ -848,7 +848,7 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
         handler.post(new Runnable() {
             @Override
             public void run() {
-                CaptureUtil captureUtil = new CaptureUtil().setUpMediaProjection(Utils.getContext(), mMediaProjection);
+                CaptureUtil captureUtil = new CaptureUtil().setUpMediaProjection(mMediaProjection);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -931,9 +931,10 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
     }
 
     public void jumptoSetting(View view) {
-        if (recognitionstate == 0 && isFastDoubleClick()) {
+      /*  if (recognitionstate == 0 && isFastDoubleClick()) {
             showdkdialog();
-        }
+        }*/
+        SerialPortUtils.gethelp().successOpenDoor(App.policeNum);
     }
 
     private long lastClickTime = System.currentTimeMillis();
@@ -980,7 +981,7 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
                     Intent intent = new Intent(FaceRecognitionActivity.this, SettingActivity.class);
                     intent.putExtra("mode", 1);
                     startActivity(intent);
-                } else if (text.equals("123456")) {//2干警
+                } else if (text.equals("njzx")) {//2干警
                     api.setStatusBar(true);
                     Intent intent = new Intent(FaceRecognitionActivity.this, SettingActivity.class);
                     intent.putExtra("mode", 2);
@@ -1010,7 +1011,7 @@ public class FaceRecognitionActivity extends BaseActivity implements ViewTreeObs
             public void afterTextChanged(Editable editable) {
                 if (editable.length() == 8 && editable.toString().equals("njzx8421")) {
                     button.callOnClick();
-                } else if (editable.length() == 6 && editable.toString().equals("123456")) {
+                } else if (editable.length() == 6 && editable.toString().equals("njzx")) {
                     button.callOnClick();
                 }
             }

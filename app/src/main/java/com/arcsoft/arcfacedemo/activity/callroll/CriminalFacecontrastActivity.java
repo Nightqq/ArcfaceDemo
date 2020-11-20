@@ -457,7 +457,7 @@ public class CriminalFacecontrastActivity extends AppCompatActivity implements V
         handler.post(new Runnable() {
             @Override
             public void run() {
-                CaptureUtil captureUtil = new CaptureUtil().setUpMediaProjection(Utils.getContext(), mMediaProjection);
+                CaptureUtil captureUtil = new CaptureUtil().setUpMediaProjection( mMediaProjection);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {

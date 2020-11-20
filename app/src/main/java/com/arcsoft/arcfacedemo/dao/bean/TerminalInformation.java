@@ -31,12 +31,14 @@ public class TerminalInformation {
     //本地端口
     private String DevicePost = "3639";
     //服务器端口
-    private String ServerPost = "";
+    private String ServerPost = "8001";
     //是否注册标准
     private boolean isregister = false;
 
+    //数据更新日期
+    private String UpdatedDate = "2020年8月20日";
     //识别阈值
-    private float RecognitionThreshold = (float) 0.8;
+    private float RecognitionThreshold = (float) 0.7;
     //识别超时时间
     private long OutTime = 3000;
     //识别失败次数
@@ -44,10 +46,11 @@ public class TerminalInformation {
     //设置密码
     private String SettingPassword = "123456";
 
-    @Generated(hash = 226124461)
+    @Generated(hash = 1541755370)
     public TerminalInformation(Long id, String TerminalNum, String TerminalName, String Serial,
             String ServerIP, String DeviceIP, String DevicePost, String ServerPost, boolean isregister,
-            float RecognitionThreshold, long OutTime, int RecognitionNum, String SettingPassword) {
+            String UpdatedDate, float RecognitionThreshold, long OutTime, int RecognitionNum,
+            String SettingPassword) {
         this.id = id;
         this.TerminalNum = TerminalNum;
         this.TerminalName = TerminalName;
@@ -57,6 +60,7 @@ public class TerminalInformation {
         this.DevicePost = DevicePost;
         this.ServerPost = ServerPost;
         this.isregister = isregister;
+        this.UpdatedDate = UpdatedDate;
         this.RecognitionThreshold = RecognitionThreshold;
         this.OutTime = OutTime;
         this.RecognitionNum = RecognitionNum;
@@ -169,5 +173,13 @@ public class TerminalInformation {
 
     public void setDevicePost(String DevicePost) {
         this.DevicePost = DevicePost;
+    }
+
+    public String getUpdatedDate() {
+        return this.UpdatedDate;
+    }
+
+    public void setUpdatedDate(String UpdatedDate) {
+        this.UpdatedDate = UpdatedDate;
     }
 }

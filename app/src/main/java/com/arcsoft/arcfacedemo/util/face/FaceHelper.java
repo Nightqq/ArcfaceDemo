@@ -4,7 +4,6 @@ import android.hardware.Camera;
 import android.util.Log;
 
 import com.arcsoft.arcfacedemo.model.FacePreviewInfo;
-import com.arcsoft.arcfacedemo.util.utils.LogUtils;
 import com.arcsoft.arcfacedemo.util.utils.TrackUtil;
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
@@ -124,12 +123,9 @@ public class FaceHelper {
                 if (code != ErrorInfo.MOK) {
                     faceListener.onFail(new Exception("getLiveness failed,code is " + code));
                 }
-            }else {
-                LogUtils.a("faceEngine == null");
             }
             facePreviewInfoList.clear();
-            if (livenessInfoList.size()>0&&livenessInfoList.size() == faceInfoList.size()) {
-                //LogUtils.a("135livenessInfoList:"+livenessInfoList.size()+"faceInfoList:"+faceInfoList.size());
+            if (livenessInfoList.size() == faceInfoList.size()) {
                 for (int i = 0; i < faceInfoList.size(); i++) {
                     facePreviewInfoList.add(new FacePreviewInfo(faceInfoList.get(i), livenessInfoList.get(i), currentTrackIdList.get(i)));
                 }

@@ -25,12 +25,13 @@ public class TemperatureSettingDao extends AbstractDao<TemperatureSetting, Long>
      */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property Wen3035 = new Property(1, String.class, "wen3035", false, "WEN3035");
-        public final static Property Wen3540 = new Property(2, String.class, "wen3540", false, "WEN3540");
-        public final static Property Wen40 = new Property(3, String.class, "wen40", false, "WEN40");
-        public final static Property Wenxia = new Property(4, String.class, "wenxia", false, "WENXIA");
-        public final static Property Wenshang = new Property(5, String.class, "wenshang", false, "WENSHANG");
-        public final static Property Cewenrizhi = new Property(6, boolean.class, "cewenrizhi", false, "CEWENRIZHI");
+        public final static Property Forehead_X = new Property(1, String.class, "forehead_X", false, "FOREHEAD__X");
+        public final static Property Forehead_xx = new Property(2, String.class, "forehead_xx", false, "FOREHEAD_XX");
+        public final static Property Forehead_Y = new Property(3, String.class, "forehead_Y", false, "FOREHEAD__Y");
+        public final static Property Forehead_Yx = new Property(4, String.class, "forehead_Yx", false, "FOREHEAD__YX");
+        public final static Property Wenxia = new Property(5, String.class, "wenxia", false, "WENXIA");
+        public final static Property Wenshang = new Property(6, String.class, "wenshang", false, "WENSHANG");
+        public final static Property Cewenrizhi = new Property(7, boolean.class, "cewenrizhi", false, "CEWENRIZHI");
     }
 
 
@@ -47,12 +48,13 @@ public class TemperatureSettingDao extends AbstractDao<TemperatureSetting, Long>
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"TEMPERATURE_SETTING\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
-                "\"WEN3035\" TEXT," + // 1: wen3035
-                "\"WEN3540\" TEXT," + // 2: wen3540
-                "\"WEN40\" TEXT," + // 3: wen40
-                "\"WENXIA\" TEXT," + // 4: wenxia
-                "\"WENSHANG\" TEXT," + // 5: wenshang
-                "\"CEWENRIZHI\" INTEGER NOT NULL );"); // 6: cewenrizhi
+                "\"FOREHEAD__X\" TEXT," + // 1: forehead_X
+                "\"FOREHEAD_XX\" TEXT," + // 2: forehead_xx
+                "\"FOREHEAD__Y\" TEXT," + // 3: forehead_Y
+                "\"FOREHEAD__YX\" TEXT," + // 4: forehead_Yx
+                "\"WENXIA\" TEXT," + // 5: wenxia
+                "\"WENSHANG\" TEXT," + // 6: wenshang
+                "\"CEWENRIZHI\" INTEGER NOT NULL );"); // 7: cewenrizhi
     }
 
     /** Drops the underlying database table. */
@@ -70,31 +72,36 @@ public class TemperatureSettingDao extends AbstractDao<TemperatureSetting, Long>
             stmt.bindLong(1, id);
         }
  
-        String wen3035 = entity.getWen3035();
-        if (wen3035 != null) {
-            stmt.bindString(2, wen3035);
+        String forehead_X = entity.getForehead_X();
+        if (forehead_X != null) {
+            stmt.bindString(2, forehead_X);
         }
  
-        String wen3540 = entity.getWen3540();
-        if (wen3540 != null) {
-            stmt.bindString(3, wen3540);
+        String forehead_xx = entity.getForehead_xx();
+        if (forehead_xx != null) {
+            stmt.bindString(3, forehead_xx);
         }
  
-        String wen40 = entity.getWen40();
-        if (wen40 != null) {
-            stmt.bindString(4, wen40);
+        String forehead_Y = entity.getForehead_Y();
+        if (forehead_Y != null) {
+            stmt.bindString(4, forehead_Y);
+        }
+ 
+        String forehead_Yx = entity.getForehead_Yx();
+        if (forehead_Yx != null) {
+            stmt.bindString(5, forehead_Yx);
         }
  
         String wenxia = entity.getWenxia();
         if (wenxia != null) {
-            stmt.bindString(5, wenxia);
+            stmt.bindString(6, wenxia);
         }
  
         String wenshang = entity.getWenshang();
         if (wenshang != null) {
-            stmt.bindString(6, wenshang);
+            stmt.bindString(7, wenshang);
         }
-        stmt.bindLong(7, entity.getCewenrizhi() ? 1L: 0L);
+        stmt.bindLong(8, entity.getCewenrizhi() ? 1L: 0L);
     }
 
     @Override
@@ -106,31 +113,36 @@ public class TemperatureSettingDao extends AbstractDao<TemperatureSetting, Long>
             stmt.bindLong(1, id);
         }
  
-        String wen3035 = entity.getWen3035();
-        if (wen3035 != null) {
-            stmt.bindString(2, wen3035);
+        String forehead_X = entity.getForehead_X();
+        if (forehead_X != null) {
+            stmt.bindString(2, forehead_X);
         }
  
-        String wen3540 = entity.getWen3540();
-        if (wen3540 != null) {
-            stmt.bindString(3, wen3540);
+        String forehead_xx = entity.getForehead_xx();
+        if (forehead_xx != null) {
+            stmt.bindString(3, forehead_xx);
         }
  
-        String wen40 = entity.getWen40();
-        if (wen40 != null) {
-            stmt.bindString(4, wen40);
+        String forehead_Y = entity.getForehead_Y();
+        if (forehead_Y != null) {
+            stmt.bindString(4, forehead_Y);
+        }
+ 
+        String forehead_Yx = entity.getForehead_Yx();
+        if (forehead_Yx != null) {
+            stmt.bindString(5, forehead_Yx);
         }
  
         String wenxia = entity.getWenxia();
         if (wenxia != null) {
-            stmt.bindString(5, wenxia);
+            stmt.bindString(6, wenxia);
         }
  
         String wenshang = entity.getWenshang();
         if (wenshang != null) {
-            stmt.bindString(6, wenshang);
+            stmt.bindString(7, wenshang);
         }
-        stmt.bindLong(7, entity.getCewenrizhi() ? 1L: 0L);
+        stmt.bindLong(8, entity.getCewenrizhi() ? 1L: 0L);
     }
 
     @Override
@@ -142,12 +154,13 @@ public class TemperatureSettingDao extends AbstractDao<TemperatureSetting, Long>
     public TemperatureSetting readEntity(Cursor cursor, int offset) {
         TemperatureSetting entity = new TemperatureSetting( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // wen3035
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // wen3540
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // wen40
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // wenxia
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // wenshang
-            cursor.getShort(offset + 6) != 0 // cewenrizhi
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // forehead_X
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // forehead_xx
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // forehead_Y
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // forehead_Yx
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // wenxia
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // wenshang
+            cursor.getShort(offset + 7) != 0 // cewenrizhi
         );
         return entity;
     }
@@ -155,12 +168,13 @@ public class TemperatureSettingDao extends AbstractDao<TemperatureSetting, Long>
     @Override
     public void readEntity(Cursor cursor, TemperatureSetting entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setWen3035(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setWen3540(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setWen40(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setWenxia(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setWenshang(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setCewenrizhi(cursor.getShort(offset + 6) != 0);
+        entity.setForehead_X(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setForehead_xx(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setForehead_Y(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setForehead_Yx(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setWenxia(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setWenshang(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setCewenrizhi(cursor.getShort(offset + 7) != 0);
      }
     
     @Override

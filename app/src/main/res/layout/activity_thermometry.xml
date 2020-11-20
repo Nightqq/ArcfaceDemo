@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_screen_default">
+    <android.support.v7.widget.RecyclerView
+        android:visibility="gone"
+        android:id="@+id/recycler_view_person"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <ImageView
+        android:id="@+id/face_recognition_imgview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_screen_border" />
+    <LinearLayout
+        android:visibility="gone"
+        android:layout_marginTop="40dp"
+        android:layout_marginLeft="22dp"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="测试模式"
+            android:textColor="#FFDC35"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:onClick="jumpTorestart"
+            android:text="手动更新"
+            android:textColor="#FFDC35"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="100dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="60dp"
+        android:background="@drawable/ic_top_default"
+        android:gravity="center_horizontal">
+
+
+        <ImageView
+            android:layout_width="180dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="1dp"
+            android:onClick="jumptoSetting"
+            android:src="@drawable/njzxlogo" />
+    </RelativeLayout>
+    <LinearLayout
+        android:id="@+id/face_recognition_Linear"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="visible">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="80dp"></View>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="760dp"
+            android:layout_gravity="center"
+            android:layout_margin="21dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
+
+            <TextureView
+
+                android:id="@+id/face_recognition_texturepreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <com.arcsoft.arcfacedemo.widget.FaceRectView
+                android:id="@+id/face_recognition_facerectview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+          <!--  <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/face_rect" />
+            <TextView
+
+                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="510dp"
+                android:text="请将人脸放在上方测温框中"
+                android:maxLines="1"
+                android:textColor="#00CD00"
+                android:textSize="30sp"
+                android:textStyle="bold" />-->
+            <TextView
+                android:visibility="gone"
+                android:id="@+id/face_recognition_wendu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="570dp"
+                android:text="姓名姓名 36.3℃"
+                android:maxLines="1"
+                android:textColor="#f00"
+                android:textSize="70sp"
+                android:textStyle="bold" />
+            <TextView
+                android:visibility="gone"
+                android:id="@+id/face_recognition_subtitles"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="660dp"
+                android:text="识别失败"
+                android:textColor="#f00"
+                android:textSize="70sp"
+                android:textStyle="bold"
+
+                />
+            <FrameLayout
+                android:id="@+id/final_ir_layout"
+                android:layout_width="270dp"
+                android:layout_height="360dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp" />
+        <FrameLayout
+            android:id="@+id/temp_display_layout"
+            android:layout_width="270dp"
+            android:layout_height="360dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"/>
+        </FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/activity_face_recognition_networkState"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:layout_height="wrap_content"
+                android:text="网络：正常"
+                android:textColor="#fff"
+                android:textSize="22sp" />
+            <TextClock
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:format12Hour="HH:mm:ss"
+                android:textColor="#fff"
+                android:textSize="32sp" />
+            <TextView
+                android:id="@+id/action_thermometry_update"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:layout_height="wrap_content"
+                android:text="数据已更新"
+                android:textColor="#fff"
+                android:textSize="22sp" />
+        </LinearLayout>
+
+
+        <TextClock
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:format12Hour="yyyy/MM/dd EEEE"
+            android:textColor="#fff"
+            android:textSize="24sp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

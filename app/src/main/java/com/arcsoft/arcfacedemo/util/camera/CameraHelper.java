@@ -1,12 +1,8 @@
 package com.arcsoft.arcfacedemo.util.camera;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
-import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.util.Log;
 import android.view.Surface;
@@ -15,22 +11,11 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 
-import com.arcsoft.arcfacedemo.net.RequestHelper;
-import com.arcsoft.arcfacedemo.net.bean.JsonPolicePhoto;
-import com.arcsoft.arcfacedemo.util.image.ImageBase64Utils;
-import com.arcsoft.arcfacedemo.util.server.net.NetWorkUtils;
-import com.arcsoft.arcfacedemo.util.utils.FileUtils;
 import com.arcsoft.arcfacedemo.util.utils.LogUtils;
-import com.arcsoft.arcfacedemo.util.utils.RequestUtil;
-import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -86,6 +71,7 @@ public class CameraHelper implements Camera.PreviewCallback {
             }
             //相机数量为2则打开1,1则打开0,相机ID 1为前置，0为后置
             mCameraId = Camera.getNumberOfCameras() - 1;
+            LogUtils.a("可以摄像头："+Camera.getNumberOfCameras());
             //若指定了相机ID且该相机存在，则打开指定的相机
             if (specificCameraId != null && specificCameraId <= mCameraId) {
                 mCameraId = specificCameraId;
@@ -106,6 +92,7 @@ public class CameraHelper implements Camera.PreviewCallback {
             try {
                 Camera.Parameters parameters = mCamera.getParameters();
                 parameters.setPreviewFormat(ImageFormat.NV21);
+
                 //预览大小设置
                 previewSize = parameters.getPreviewSize();
                 List<Camera.Size> supportedPreviewSizes = parameters.getSupportedPreviewSizes();
@@ -126,7 +113,6 @@ public class CameraHelper implements Camera.PreviewCallback {
                     }
                 }
                 mCamera.setParameters(parameters);
-                mCamera.setDisplayOrientation(90);
                 if (previewDisplayView instanceof TextureView) {
                     mCamera.setPreviewTexture(((TextureView) previewDisplayView).getSurfaceTexture());
                 } else {
@@ -134,8 +120,8 @@ public class CameraHelper implements Camera.PreviewCallback {
                 }
                 mCamera.setPreviewCallback(this);
                 mCamera.startPreview();
-                if (cameraListener != null) {//因相机90，故旋转人脸框位置90
-                    cameraListener.onCameraOpened(mCamera, mCameraId, 90, isMirror);
+                if (cameraListener != null) {
+                    cameraListener.onCameraOpened(mCamera, mCameraId, displayOrientation, isMirror);
                 }
             } catch (Exception e) {
                 if (cameraListener != null) {
@@ -193,43 +179,6 @@ public class CameraHelper implements Camera.PreviewCallback {
         }
     }
 
-    public void takePictures(String id) {
-
-      /*  mCamera.setPreviewCallback(new Camera.PreviewCallback() {
-            @Override
-            public void onPreviewFrame(byte[] bytes, Camera camera) {
-                Camera.Size size = camera.getParameters().getPreviewSize();
-                YuvImage image = new YuvImage(bytes, ImageFormat.NV21, size.width, size.height, null);
-                if(image!=null){
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    image.compressToJpeg(new Rect(0, 0, size.width, size.height), 80, stream);
-                    Bitmap bmp = BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.size());
-                    FileUtils.getFileUtilsHelp().saveMyBitmap(bmp);
-                    mCamera.startPreview();
-                }else {
-                    LogUtils.a("图片为空");
-                }
-
-
-            }
-        });*/
-
-
-       /* mCamera.takePicture(null, null, new Camera.PictureCallback() {
-            @Override
-            public void onPictureTaken(byte[] bytes, Camera camera) {
-                // TODO: 2018\9\10 0010  保存上传
-                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");// HH:mm:ss
-                Date date = new Date(System.currentTimeMillis());
-                String format = simpleDateFormat.format(date);
-                JsonPolicePhoto jsonPolicePhoto = new JsonPolicePhoto(id, NetWorkUtils.getIP(), format, ImageBase64Utils.getBitmapByte(bitmap),"F");
-                RequestHelper.getRequestHelper().uploadPolicephoto(jsonPolicePhoto);
-                mCamera.startPreview();
-            }
-        });*/
-    }
-
     public boolean isStopped() {
         synchronized (this) {
             return mCamera == null;
@@ -247,7 +196,6 @@ public class CameraHelper implements Camera.PreviewCallback {
             previewSize = null;
         }
     }
-
 
     private Camera.Size getBestSupportedSize(List<Camera.Size> sizes, Point previewViewSize) {
         if (sizes == null || sizes.size() == 0) {
@@ -313,17 +261,15 @@ public class CameraHelper implements Camera.PreviewCallback {
     }
 
 
-
-
     private boolean halve=true;
     @Override
     public void onPreviewFrame(byte[] nv21, Camera camera) {
+        //cameraListener.onPreview(nv21, camera);
         if (cameraListener != null&&halve) {//传输帧数减半
             cameraListener.onPreview(nv21, camera);
         }
         halve=!halve;
     }
-
 
     private TextureView.SurfaceTextureListener textureListener = new TextureView.SurfaceTextureListener() {
         @Override

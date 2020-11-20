@@ -1,39 +1,32 @@
 package com.arcsoft.arcfacedemo.activity;
 
 import android.Manifest;
-import android.app.DownloadManager;
 import android.app.kingsun.KingsunSmartAPI;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-
-import com.arcsoft.arcfacedemo.R;
-import com.arcsoft.arcfacedemo.faceserver.SignalingClient;
-import com.arcsoft.arcfacedemo.util.utils.FaceUtils;
-import com.arcsoft.arcfacedemo.util.utils.LogUtils;
-import com.arcsoft.arcfacedemo.util.utils.PermissionsUtils;
-import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
-import com.arcsoft.arcfacedemo.util.communi.SerialPortUtils;
-import com.arcsoft.arcfacedemo.util.server.handler.PersonAddHandler;
-import com.arcsoft.arcfacedemo.util.server.net.HttpUtils;
-
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.graphics.Bitmap;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.arcsoft.arcfacedemo.R;
+import com.arcsoft.arcfacedemo.faceserver.SignalingClient;
+import com.arcsoft.arcfacedemo.util.server.handler.PersonAddHandler;
+import com.arcsoft.arcfacedemo.util.server.net.HttpUtils;
 import com.arcsoft.arcfacedemo.util.server.server.OnServerChangeListener;
 import com.arcsoft.arcfacedemo.util.server.server.ServerPresenter;
 import com.arcsoft.arcfacedemo.util.server.server.ServerService;
+import com.arcsoft.arcfacedemo.util.utils.FaceUtils;
+import com.arcsoft.arcfacedemo.util.utils.LogUtils;
+import com.arcsoft.arcfacedemo.util.utils.PermissionsUtils;
 import com.arcsoft.arcfacedemo.util.utils.Utils;
 
 import java.util.ArrayList;
@@ -91,34 +84,7 @@ public class TestActivity extends AppCompatActivity implements OnServerChangeLis
 
 
         serverPresenter = new ServerPresenter(this, this);
-        //串口数据监听事件
-        SerialPortUtils.gethelp().setOnDataReceiveListener(new SerialPortUtils.OnDataReceiveListener() {
-            @Override
-            public void onDataReceive(byte[] buffer) {
-                Log.d(TAG, "进入数据监听事件中。。。" + new String(buffer));
-                //
-                //在线程中直接操作UI会报异常：ViewRootImpl$CalledFromWrongThreadException
-                //解决方法：handler
-                //
-                mBuffer = buffer;
-                LogUtils.a(buffer.length);
-                handler.post(runnable);
-            }
 
-            @Override
-            public void onDataReceive(String buffer) {
-
-            }
-
-            //开线程更新UI
-            Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                    LogUtils.a("size：" + String.valueOf(mBuffer.length) + "数据监听：" + SwitchUtils.byte2HexStr(mBuffer));
-                    Toast.makeText(TestActivity.this, SwitchUtils.byte2HexStr(mBuffer), Toast.LENGTH_SHORT).show();
-                }
-            };
-        });
         getpermiss();
     }
 

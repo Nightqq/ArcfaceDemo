@@ -8,4 +8,5 @@
     <color name="setting_entry_view_color">#DEDEDE</color>
     <color name="green">#00ff00</color>
     <color name="red">#ff0000</color>
+    <color name="color_bg_transparent">#99005AB5</color>//相机预览遮挡背景
 </resources>

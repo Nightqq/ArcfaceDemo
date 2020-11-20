@@ -18,6 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -31,6 +32,9 @@ public class FileUtils {
     private String abnormal_path = FILE_PATH + File.separator + "异常捕捉";
     private String img_path = FILE_PATH + File.separator + "图片";
     private String temperature_path = FILE_PATH + File.separator + "温度";
+    private String update_path = FILE_PATH + File.separator + "更新";
+    private String offline_path = FILE_PATH + File.separator + "离线激活";
+
     private FileUtils() {
     }
 
@@ -43,8 +47,13 @@ public class FileUtils {
 
     //保存相似度日志
     public void savaSimilarityLog(String data) {
-        File fileDir = new File(Log_path);
-        savefile(data, fileDir);
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                File fileDir = new File(Log_path);
+                savefile(data, fileDir);
+            }
+        });
     }
 
     //保存串口日志
@@ -52,11 +61,65 @@ public class FileUtils {
         File fileDir = new File(serialport_path);
         savefile(data, fileDir);
     }
+
+    //保存更新日志
+    public void saveupdatehelp(String text) {
+        SimpleDateFormat simpleDateFormattime = new SimpleDateFormat("HH:mm:ss");
+        Date date = new Date(System.currentTimeMillis());
+        String time = simpleDateFormattime.format(date);
+        String content = "时间：" + time + text + "\n";
+        savaupdateLog(content);
+    }
+
+    public void delateLog() {
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    FileUtils.getFileUtilsHelp().saveupdatehelp(" 删除60天前日志");
+                    File dirFile = new File(FILE_PATH);
+                    File[] files = dirFile.listFiles();
+                    for (File file : files) {
+                        if (file.isDirectory()){
+                            File[] files1 = file.listFiles();
+                            for (File file1 : files1) {
+                                String name = file1.getName().replace(".txt", "");
+                                long nameday = TimeUtils.stringToLong(name, "yyyy年MM月dd日");
+                                if (System.currentTimeMillis()-nameday>1000*60*60*24*60){
+                                    file1.delete();
+                                }
+                            }
+                        }
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void savaupdateLog(String data) {
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                File fileDir = new File(update_path);
+                savefile(data, fileDir);
+            }
+        });
+    }
+
     //保存温度日志
     public void savatemperatureLog(String data) {
-        File fileDir = new File(temperature_path);
-        savefile(data, fileDir);
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                File fileDir = new File(temperature_path);
+                savefile(data, fileDir);
+            }
+        });
+
     }
+
     //保存异常日志
     public void savaabnormalLog(String data) {
         File fileDir = new File(abnormal_path);
@@ -64,6 +127,7 @@ public class FileUtils {
     }
 
     private void savefile(String data, File fileDir) {
+
         try {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日");
             Date date = new Date(System.currentTimeMillis());
@@ -89,7 +153,8 @@ public class FileUtils {
             e.printStackTrace();
         }
     }
-    public void saveMyBitmap( Bitmap bitmap) {
+
+    public void saveMyBitmap(Bitmap bitmap) {
         File fileDir = new File(img_path);
         if (!fileDir.exists() || !fileDir.getParentFile().exists()) {
             boolean mkdirs = fileDir.getParentFile().mkdirs();
@@ -108,10 +173,10 @@ public class FileUtils {
             fos.flush();
             fos.close();
         } catch (FileNotFoundException e) {
-            LogUtils.a("图片",e.getMessage().toString());
+            LogUtils.a("图片", e.getMessage().toString());
             e.printStackTrace();
         } catch (IOException e) {
-            LogUtils.a("图片",e.getMessage().toString());
+            LogUtils.a("图片", e.getMessage().toString());
             e.printStackTrace();
         }
     }

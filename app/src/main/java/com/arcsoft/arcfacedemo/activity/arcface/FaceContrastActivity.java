@@ -1,32 +1,6 @@
 package com.arcsoft.arcfacedemo.activity.arcface;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.support.v7.app.AlertDialog;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LinearInterpolator;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-
-import com.arcsoft.arcfacedemo.R;
-import com.arcsoft.arcfacedemo.activity.App;
 import com.arcsoft.arcfacedemo.activity.BaseActivity;
-import com.arcsoft.arcfacedemo.activity.setting.SettingActivity;
-import com.arcsoft.arcfacedemo.dao.bean.PoliceFace;
-import com.arcsoft.arcfacedemo.dao.helper.PoliceFaceHelp;
-import com.arcsoft.arcfacedemo.net.RequestHelper;
-import com.arcsoft.arcfacedemo.util.communi.SerialPortUtils;
-import com.arcsoft.arcfacedemo.util.utils.LogUtils;
-import com.arcsoft.arcfacedemo.util.utils.SwitchUtils;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class FaceContrastActivity extends BaseActivity {
 

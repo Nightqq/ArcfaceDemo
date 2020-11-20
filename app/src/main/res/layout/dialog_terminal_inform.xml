@@ -14,7 +14,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/item_marginTop"
             android:orientation="horizontal">
 
             <TextView
@@ -43,7 +43,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/item_marginTop"
             android:orientation="horizontal">
 
             <TextView
@@ -72,7 +72,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/item_marginTop"
             android:orientation="horizontal">
 
             <TextView
@@ -101,7 +101,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/item_marginTop"
             android:orientation="horizontal">
 
             <TextView
@@ -130,7 +130,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/item_marginTop"
             android:orientation="horizontal">
 
             <TextView
@@ -155,6 +155,7 @@
             android:layout_height="1dp"
             android:background="@color/setting_entry_view_color" />
         <LinearLayout
+            android:layout_marginTop="@dimen/item_marginTop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -172,7 +173,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:inputType="number"
                 android:textColor="#fff"
                 android:textSize="30sp" />
             <Button

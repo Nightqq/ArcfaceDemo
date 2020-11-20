@@ -24,6 +24,7 @@ public class ImageBase64Utils {
         byte[] bytes = out.toByteArray();
         byte[] encode = Base64.encode(bytes, Base64.DEFAULT);
         String encodeString = new String(encode);
+
         return encodeString;
     }
 

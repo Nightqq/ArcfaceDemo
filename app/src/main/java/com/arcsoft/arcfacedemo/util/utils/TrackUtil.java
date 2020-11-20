@@ -1,6 +1,8 @@
 package com.arcsoft.arcfacedemo.util.utils;
 
 import android.graphics.Rect;
+
+import com.arcsoft.arcfacedemo.model.FacePreviewInfo;
 import com.arcsoft.face.FaceInfo;
 
 import java.util.List;
@@ -25,4 +27,17 @@ public class TrackUtil {
         ftFaceList.add(maxFaceInfo);
     }
 
+    public static void keepMaxFacePreview(List<FacePreviewInfo> ftFaceList) {
+        if (ftFaceList == null || ftFaceList.size() <= 1) {
+            return;
+        }
+        FacePreviewInfo maxFaceInfo = ftFaceList.get(0);
+        for (FacePreviewInfo faceInfo : ftFaceList) {
+            if (faceInfo.getFaceInfo().getRect().width() > maxFaceInfo.getFaceInfo().getRect().width()) {
+                maxFaceInfo = faceInfo;
+            }
+        }
+        ftFaceList.clear();
+        ftFaceList.add(maxFaceInfo);
+    }
 }

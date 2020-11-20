@@ -3,10 +3,6 @@ package com.arcsoft.arcfacedemo.util.face;
 import android.support.annotation.Nullable;
 
 import com.arcsoft.face.FaceFeature;
-import com.arcsoft.face.FaceInfo;
-import com.arcsoft.face.LivenessInfo;
-
-import java.util.List;
 
 public interface FaceListener {
     /**

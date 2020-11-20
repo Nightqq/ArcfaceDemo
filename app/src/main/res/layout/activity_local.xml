@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    tools:context=".activity.local.LocalActivity">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:onClick="jumpToactiveEngine"
+        android:text="激活引擎"
+        android:textColor="#000"
+        android:textSize="24sp" />
+
+    <Button
+        android:onClick="jumpToregist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="人脸录入"
+        android:textColor="#000"
+        android:textSize="24sp" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <Button
+            android:onClick="jumpToOnetoone"
+            android:layout_marginLeft="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="识别测温1:1"
+            android:textColor="#000"
+            android:textSize="24sp" />
+    </LinearLayout>
+   
+
+    <Button
+        android:onClick="jumpToOnetoN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="识别测温1：N"
+        android:textColor="#000"
+        android:textSize="24sp" />
+    <LinearLayout
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:text="识别阈值:"
+            android:textColor="#000"
+            android:textSize="24sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <EditText
+            android:id="@+id/ontoon_yz"
+            android:hint="0.8"
+            android:inputType="numberDecimal"
+            android:layout_marginLeft="20dp"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:textColor="#272727"
+            android:textColorHint="#ADADAD"
+            android:textSize="22sp" />
+        <TextView
+            android:onClick="jumpToOnsxd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:gravity="center"
+            android:text="确定"
+            android:textColor="#6F00D2"
+            android:textSize="22sp" />
+    </LinearLayout>
+    <Button
+        android:onClick="jumpTofinish"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:text="退出"
+        android:textColor="#000"
+        android:textSize="24sp" />
+
+</LinearLayout>

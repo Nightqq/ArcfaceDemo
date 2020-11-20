@@ -6,10 +6,12 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 
+import com.arcsoft.arcfacedemo.util.server.net.NetWorkUtils;
+
 public class IpPort {
 
     //本地"192.168.0.214",8804,8082
-    public static String local_ip = "192.168.0.160";
+    public static String local_ip = NetWorkUtils.getIP();
     public static int local_port = 8804;
     public static int local_Audio_port = 8082;
     //远端"192.168.0.219",8805,8083

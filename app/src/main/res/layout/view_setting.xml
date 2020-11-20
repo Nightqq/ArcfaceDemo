@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.guide.testmoudlesdkdemo.SettingView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:onClick="onSettingPaletteClick">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="设置初始色带："
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/setting_palette_et"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="3"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:textSize="14sp"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:onClick="onSettingPaletteClick"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:onClick="onSettingScaleClick">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="设置初始放大系数："
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/setting_scale_et"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="3"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:textSize="14sp"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:onClick="onSettingScaleClick"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:onClick="onSettingRotateClick">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="设置初始图像旋转系数："
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/setting_rotate_et"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="3"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:textSize="14sp"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:onClick="onSettingRotateClick"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:onClick="onSettingImageAlgoClick">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="图像算法开关："
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/setting_image_algo_et"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="3"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:textSize="14sp"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:onClick="onSettingImageAlgoClick"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:onClick="onSettingAutoShutterClick">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="自动快门开关："
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/setting_auto_shutter_switch_et"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="3"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:textSize="14sp"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:onClick="onSettingAutoShutterClick"/>
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:onClick="onSettingPeriodClick">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="自动快门间隔："
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/setting_period_et"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="9"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:textSize="14sp"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:onClick="onSettingPeriodClick"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:onClick="onSettingDelayClick">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="自动快门启动延时："
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/setting_delay_et"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="9"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:textSize="14sp"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:onClick="onSettingDelayClick"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</com.guide.testmoudlesdkdemo.SettingView>
